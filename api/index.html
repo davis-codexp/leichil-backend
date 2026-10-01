@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS .m3u8 Video Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .player-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            background-color: #000;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+    <!-- Include the hls.js library via jsDelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+    <div class="player-container">
+        <h1>Live HLS Video Stream</h1>
+        <!-- Standard HTML5 Video Element -->
+        <video id="video" controls autoplay muted></video>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const video = document.getElementById("video");
+            
+            // Replace this URL with your own .m3u8 playlist URL
+            const streamUrl = "https://leichil-trial.b-cdn.net/f3da11c2-2643-4b3e-a334-c047640bfc1a/master.m3u8";
+
+            // 1. Check if hls.js is supported (Chrome, Firefox, Edge, etc.)
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(err => {
+                        console.log("Autoplay blocked, waiting for user interaction:", err);
+                    });
+                });
+
+                // Error handling
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.error("Fatal network error encountered, trying to recover...");
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.error("Fatal media error encountered, trying to recover...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                console.error("Unrecoverable error:", data);
+                                hls.destroy();
+                                break;
+                        }
+                    }
+                });
+
+            // 2. Fallback for native HLS support (Safari and most mobile browsers)
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = streamUrl;
+                video.addEventListener("loadedmetadata", () => {
+                    video.play().catch(err => {
+                        console.log("Autoplay blocked, waiting for user interaction:", err);
+                    });
+                });
+            } else {
+                alert("Your browser does not support HLS streaming.");
+            }
+        });
+    </script>
+
+</body>
+</html>
+

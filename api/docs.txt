@@ -1,0 +1,20 @@
+USERS:
+id, name, mobile, email, role, created_on
+
+ACTORS:
+id, name, image, gender
+
+PRODUCERS:
+id, name, mobile, email
+
+MOVIES:
+id, title, producer, thumbnail, trailer, video, created_by, added_on, genre, release_year, rating, category, price
+
+MOVIE_CAST:
+movie_id, actor_id
+
+CUSTOMERS:
+id, name, mobile
+
+MOVIE_RATINGS:
+movie_id, customer_id, rating, review, added_on

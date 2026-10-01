@@ -1,0 +1,10 @@
+node_modules/
+public/
+config.js
+.idea/
+media/
+venv/
+.env
+.DS_Store
+tmp/
+skynet

@@ -1,0 +1,7 @@
+videos/
+tmp/
+.DS_Store
+.history
+*.mp4
+leichil-transcoder
+leichil-api

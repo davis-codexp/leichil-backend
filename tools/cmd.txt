@@ -1,0 +1,1 @@
+ffmpeg -i /Volumes/Davis/wedding/cake_kakpa.mp4 -c:v libx265 -crf 22 -preset slow -c:a aac -b:a 192k compressed.mp4
