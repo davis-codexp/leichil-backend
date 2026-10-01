@@ -17,8 +17,14 @@ type SmsBody struct {
 func SendSms(message_id, mobile, text string) {
 	const queue_name = "sms_queue"
 	conn := GetBrokerConnection()
+	if conn == nil {
+		return
+	}
 	defer conn.Close()
 	channel := GetChannel(conn, queue_name)
+	if channel == nil {
+		return
+	}
 	body := SmsBody{
 		Mobile:    mobile,
 		MessageID: message_id,

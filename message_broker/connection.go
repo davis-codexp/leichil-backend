@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func GetBrokerConnection() *amqp.Connection {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
 	username := os.Getenv("BROKER_USERNAME")
 	password := os.Getenv("BROKER_PASSWORD")
 	address := os.Getenv("BROKER_ADDRESS")
@@ -20,18 +15,23 @@ func GetBrokerConnection() *amqp.Connection {
 	broker := fmt.Sprintf("amqp://%s:%s@%s:%s", username, password, address, port)
 	conn, err := amqp.Dial(broker)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error in connecting to Rabbit MQ: ", err.Error())
+		return nil
 	}
 	return conn
 }
 
 func GetChannel(conn *amqp.Connection, queue_name string) *amqp.Channel {
 	channel, err := conn.Channel()
-
 	if err != nil {
-		panic(err)
+		fmt.Println("Error in initializing Rabbit MQ channel: ", err.Error())
+		return nil
 	}
-
-	channel.QueueDeclare(queue_name, false, false, false, false, nil)
+	_, err = channel.QueueDeclare(queue_name, false, false, false, false, nil)
+	if err != nil {
+		fmt.Println("Error in declaring Message Queue: ", err.Error())
+		channel.Close()
+		return nil
+	}
 	return channel
 }
