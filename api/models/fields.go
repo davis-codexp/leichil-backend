@@ -135,21 +135,6 @@ func get_content_rating_add_fields(obj *ContentRating) []any {
 	return []any{obj.Rating, obj.Review}
 }
 
-func get_purchase_fields(obj *Purchase) []any {
-	return []any{
-		&obj.CustomerID, &obj.ContentID, &obj.Price, &obj.Discount,
-		&obj.NetAmount, &obj.PaymentMode, &obj.CreatedOn, &obj.CustomerName,
-		&obj.CustomerMobile, &obj.ContentName, &obj.ContentType,
-	}
-}
-
-func get_purchase_add_fields(obj *Purchase) []any {
-	return []any{
-		obj.ContentID, obj.Price, obj.Discount, obj.NetAmount,
-		obj.PaymentMode, obj.CustomerID,
-	}
-}
-
 func get_payment_order_fields(obj *PaymentOrder) []any {
 	return []any{
 		&obj.OrderID, &obj.PaymentID, &obj.Amount, &obj.Status,

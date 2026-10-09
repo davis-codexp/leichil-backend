@@ -64,6 +64,7 @@ var get_contents_query = `
 	INNER JOIN users ON users.id = contents.created_by
 	WHERE contents.is_deleted = 0
 `
+var get_content_price_query = "SELECT id, price FROM contents WHERE id = ?"
 var get_home_contents_query = `
 	SELECT contents.id, contents.name, thumbnail, release_year, genre, rating
 	FROM contents
@@ -368,36 +369,25 @@ var delete_customer_favourite_query = `
 `
 var fav_order_filter = " ORDER BY fav.created_on DESC"
 
-/*------------------------PURCHASE QUERIES--------------------*/
-var get_purchase_queries = `
-	SELECT p.customer_id, p.content_id, p.price, p.discount, p.net_amount,
-	p.payment_mode, p.created_on, c.name as customer_name,
-	c.mobile as customer_mobile, con.name AS content_name, con.content_type
-	FROM purchases p
-	INNER JOIN customers c ON c.id = p.customer_id
-	INNER JOIN contents con ON con.id = p.content_id
-	WHERE content_id IS NOT NULL
-`
-var purchase_customer_filter = " AND p.customer_id = ?"
-var purchase_content_filter = " AND p.content_id = ?"
-var insert_pruchase_query = `
-	INSERT INTO purchases(
-		content_id, price, discount, net_amount,
-		payment_mode, customer_id
-	) VALUES(?, ?, ?, ?, ?, ?)
-`
-
 /*------------------------PAYMENT ORDER QUERIES--------------------*/
 var get_payment_orders_query = `
-	SELECT order_id, payment_id, amount, status
-	FROM payment_orders
-	WHERE order_id IS NOT NULL
+	SELECT po.order_id, po.payment_id, po.customer_id, po.content_id,
+	po.amount, po.status, c.name as customer_name,
+	c.mobile as customer_mobile, con.name as content_name
+	FROM payment_orders po
+	INNER JOIN customers c on c.id = po.customer_id
+	INNER JOIN contents con ON con.id = po.content_id
+	WHERE po.order_id IS NOT NULL
 `
 var insert_payment_order_query = `
-	INSERT INTO payment_orders(order_id, amount) VALUES(?, ?)
+	INSERT INTO payment_orders(
+		order_id, amount, content_id, customer_id
+	) VALUES(?, ?, ?, ?)
 `
 var update_payment_order_query = "UPDATE payment_orders SET status = ?, payment_id = ? WHERE order_id = ?"
-var payment_order_id_filter = " AND order_id = ?"
-var payment_order_payment_filter = " AND payment_id = ?"
-var payment_order_amount_filter = " AND amount = ?"
-var payment_order_status_filter = " AND status = ?"
+var payment_order_id_filter = " AND po.order_id = ?"
+var payment_order_payment_filter = " AND po.payment_id = ?"
+var payment_order_amount_filter = " AND po.amount = ?"
+var payment_order_status_filter = " AND po.status = ?"
+var payment_content_filter = " AND po.content_id = ?"
+var payment_customer_filter = " AND po.customer_id = ?"

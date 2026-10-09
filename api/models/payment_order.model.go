@@ -18,13 +18,16 @@ var rzp_secret string
 var rzp_key string
 
 type PaymentOrder struct {
-	ContentID  *int    `json:"content_id,omitempty"`
-	CustomerID *int    `json:"customer_id,omitempty"`
-	OrderID    *string `json:"order_id,omitempty"`
-	PaymentID  *int    `json:"payment_id,omitempty"`
-	Amount     *int    `json:"amount,omitempty"`
-	Status     *string `json:"status,omitempty"`
-	CreatedOn  *string `json:"created_on,omitempty"`
+	ContentID      *int    `json:"content_id,omitempty"`
+	CustomerID     *int    `json:"customer_id,omitempty"`
+	OrderID        *string `json:"order_id,omitempty"`
+	PaymentID      *int    `json:"payment_id,omitempty"`
+	Amount         *int    `json:"amount,omitempty"`
+	Status         *string `json:"status,omitempty"`
+	CreatedOn      *string `json:"created_on,omitempty"`
+	CustomerName   *string `json:"customer_name,omitempty"`
+	CustomerMobile *string `json:"customer_mobile,omitempty"`
+	ContentName    *string `json:"content_name,omitempty"`
 }
 
 type VerifyPaymentBody struct {
@@ -33,9 +36,45 @@ type VerifyPaymentBody struct {
 	RazorpaySignature *string `json:"razorpay_signature,omitempty"`
 }
 
+func (obj PaymentOrder) Get(offset, limit int, params map[string]string) (CountResult, []any, error) {
+	var fields = get_payment_order_fields(&obj)
+	var query string = get_payment_orders_query
+	filter_query, filter := obj.QueryBuilder(params)
+	query += filter_query + " ORDER BY po.created_on DESC"
+	return GetListData(filter, fields, &obj, "", query, offset, limit)
+}
+
+func (obj PaymentOrder) GetCustomerPurchase(token CustomerToken) (CountResult, []any, error) {
+	var fields = get_payment_order_fields(&obj)
+	var query string = get_payment_orders_query + payment_customer_filter + payment_order_status_filter
+	var filter = []any{token.CustomerID, "SUCCESS"}
+	return GetListData(filter, fields, &obj, "", query, 0, 100000)
+}
+
+func (obj PaymentOrder) VerifyCustomerPurchase(token CustomerToken, content_id string) bool {
+	var fields = get_payment_order_fields(&obj)
+	var query string = get_payment_orders_query + payment_customer_filter + payment_content_filter + payment_order_status_filter
+	var filter = []any{token.CustomerID, content_id, "SUCCESS"}
+	_, result, err := GetListData(filter, fields, &obj, "", query, 0, 100000)
+	if err != nil {
+		log.Error("Error in Verifying customer purchase: ", err.Error())
+		return false
+	}
+	return len(result) > 0
+}
+
 func (obj *PaymentOrder) Create(token CustomerToken) map[string]any {
-	var amount = 6900
 	var response = make(map[string]any)
+	var content Content
+	var content_fields = []any{&content.ID, &content.Price}
+	var filter = []any{obj.ContentID}
+	result, err := GetSingleData(filter, content_fields, &content, get_content_price_query)
+	if err != nil {
+		log.Error("Error in Getting Content By ID: ", err.Error())
+		return response
+	}
+	content = utils.FormatSingleResult[Content](result)
+	var amount = SanitizeData(content.Price) * 100
 	rzp_key = os.Getenv("RZP_KEY_ID")
 	rzp_secret = os.Getenv("RZP_KEY_SECRET")
 	rzp_client = razorpay.NewClient(rzp_key, rzp_secret)
@@ -85,4 +124,34 @@ func (obj *VerifyPaymentBody) VerifyPayment() bool {
 func (obj *PaymentOrder) Update() bool {
 	var fields = []any{obj.Status, obj.PaymentID, obj.OrderID}
 	return utils.RunUpdate(update_payment_order_query, fields)
+}
+
+func (obj PaymentOrder) QueryBuilder(params map[string]string) (string, []any) {
+	var query string
+	var filter []any
+	if len(params["order_id"]) > 0 {
+		query += payment_order_id_filter
+		filter = append(filter, params["order_id"])
+	}
+	if len(params["payment_id"]) > 0 {
+		query += payment_order_payment_filter
+		filter = append(filter, params["payment_id"])
+	}
+	if len(params["amount"]) > 0 {
+		query += payment_order_amount_filter
+		filter = append(filter, params["amount"])
+	}
+	if len(params["status"]) > 0 {
+		query += payment_order_status_filter
+		filter = append(filter, params["status"])
+	}
+	if len(params["content_id"]) > 0 {
+		query += payment_content_filter
+		filter = append(filter, params["content_id"])
+	}
+	if len(params["customer_id"]) > 0 {
+		query += payment_customer_filter
+		filter = append(filter, params["customer_id"])
+	}
+	return query, filter
 }

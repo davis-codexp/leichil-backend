@@ -150,25 +150,16 @@ CREATE TABLE subscriptions (
 	FOREIGN KEY(plan_id) REFERENCES subscription_plans(id) ON DELETE CASCADE
 ) AUTO_INCREMENT = 1001;
 
-CREATE TABLE purchases (
-    customer_id INT,
-    content_id INT,
-    price INT,
-    discount INT,
-    net_amount INT,
-    payment_mode ENUM("CARD", "UPI", "NET BANKING") DEFAULT "UPI",
-	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(customer_id, content_id),
-    FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
-    FOREIGN KEY(content_id) REFERENCES contents(id)
-);
-
 CREATE TABLE payment_orders (
     order_id VARCHAR(100) UNIQUE NOT NULL PRIMARY KEY,
     payment_id VARCHAR(100) DEFAULT NULL,
+    customer_id INT,
+    content_id INT,
     amount INT NOT NULL DEFAULT 0, /*AMOUNT IN PAISE (INR)*/
     status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
-    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+    FOREIGN KEY(content_id) REFERENCES contents(id)
 );
 
 CREATE TABLE customer_content_activities(
