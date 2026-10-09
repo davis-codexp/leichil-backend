@@ -148,7 +148,7 @@ func (body *CustomerLoginBody) GetOtp() bool {
 	}
 	if utils.SetSingleData[CustomerOtp](fmt.Sprintf("otp-%s", SanitizeData(customer.Mobile)), []any{cus_otp}, 10*time.Minute) {
 		log.Info("OTP: ", otp)
-		//utils.SendOTP(SanitizeData(customer.Mobile), otp)
+		utils.SendOTP(SanitizeData(customer.Mobile), otp_str)
 		return true
 	}
 	return false

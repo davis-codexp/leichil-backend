@@ -23,6 +23,7 @@ type Content struct {
 	Rating        *float32   `json:"rating,omitempty"`
 	Category      *string    `json:"category,omitempty"`
 	ContentType   *string    `json:"content_type,omitempty"`
+	IsPublished   *int       `json:"is_published,omitempty"`
 	CreatedOn     *string    `json:"created_on,omitempty"`
 	CreatedBy     *int       `json:"added_by,omitempty"`
 	CreatedByName *string    `json:"added_by_name,omitempty"`
@@ -286,14 +287,15 @@ func (cca CustomerContentActivity) GetContinueWatching(token CustomerToken) ([]C
 	return continue_list, nil
 }
 
-func (obj Content) GetById(id string) (Content, error) {
+func (obj Content) GetById(id string, is_published int) (Content, error) {
 	var episode Episode
 	var episode_list []Episode
 	var cast Cast
 	var content_fields = get_content_fields(&obj)
 	var cast_fields = get_cast_fields(&cast)
-	var content_query string = get_contents_query + content_id_filter
-	var content_filter = []any{id}
+	var content_query string = get_contents_query + content_id_filter + content_published_filter
+	var content_filter = []any{id, is_published}
+	var id_filter = []any{id}
 	result, err := GetSingleData(content_filter, content_fields, &obj, content_query)
 	if err != nil {
 		log.Error("Error in Getting Content By ID: ", err.Error())
@@ -306,7 +308,7 @@ func (obj Content) GetById(id string) (Content, error) {
 	if SanitizeData(obj.ContentType) == "SERIES" {
 		var seasons int = 1
 		var episode_fields = get_episode_fields(&episode)
-		_, episode_result, err := GetListData(content_filter, episode_fields, &episode, "", get_episodes_query, 0, 1000)
+		_, episode_result, err := GetListData(id_filter, episode_fields, &episode, "", get_episodes_query, 0, 1000)
 		if err != nil {
 			log.Error("Error in Getting Content Episodes: ", err.Error())
 		} else {
@@ -319,7 +321,7 @@ func (obj Content) GetById(id string) (Content, error) {
 			obj.Episodes = &episode_list
 		}
 	}
-	_, cast_result, err := GetListData(content_filter, cast_fields, &cast, "", get_casts_query, 0, 1000)
+	_, cast_result, err := GetListData(id_filter, cast_fields, &cast, "", get_casts_query, 0, 1000)
 	if err != nil {
 		log.Error("Error in Getting Content Cast: ", err.Error())
 		return obj, err
@@ -416,6 +418,10 @@ func (obj Content) QueryBuilder(params map[string]string) (string, []any) {
 	if len(params["year"]) > 0 {
 		query += content_year_filter
 		filter = append(filter, params["year"])
+	}
+	if len(params["published"]) > 0 {
+		query += content_published_filter
+		filter = append(filter, params["published"])
 	}
 	return query, filter
 }

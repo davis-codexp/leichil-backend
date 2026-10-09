@@ -68,6 +68,7 @@ func AppApiHandler(router fiber.Router) {
 	var app_content_routes = router.Group("/contents")
 	var app_profile_routes = router.Group("/profile")
 	var app_actor_routes = router.Group("/actors")
+	var app_order_routes = router.Group("/orders")
 
 	app_subscription_handler(app_subscription_routes)
 	app_subscription_plan_handler(app_subscription_plan_routes)
@@ -75,4 +76,5 @@ func AppApiHandler(router fiber.Router) {
 	app_content_handler(app_content_routes)
 	app_profile_handler(app_profile_routes)
 	app_actor_handler(app_actor_routes)
+	app_order_handler(app_order_routes)
 }

@@ -33,7 +33,8 @@ CREATE TABLE contents (
 	thumbnail VARCHAR(500),
 	trailer VARCHAR(500),
 	video VARCHAR(500),
-	category ENUM('PREMIERE', 'NORMAL') DEFAULT 'NORMAL',
+	category ENUM('PREMIUM', 'SUBSCRIPTION', 'SHARED') DEFAULT 'PREMIUM',
+    is_published TINYINT(1) NOT NULL DEFAULT 1,
 	content_type ENUM('MOVIE', 'SHUMANG LILA', 'SERIES', 'SHORT FILM') DEFAULT 'MOVIE',
 	rating FLOAT(2,1) DEFAULT 0,
 	created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -160,6 +161,14 @@ CREATE TABLE purchases (
     PRIMARY KEY(customer_id, content_id),
     FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     FOREIGN KEY(content_id) REFERENCES contents(id)
+);
+
+CREATE TABLE payment_orders (
+    order_id VARCHAR(100) UNIQUE NOT NULL PRIMARY KEY,
+    payment_id VARCHAR(100) DEFAULT NULL,
+    amount INT NOT NULL DEFAULT 0, /*AMOUNT IN PAISE (INR)*/
+    status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
+    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE customer_content_activities(

@@ -30,7 +30,7 @@ func get_content_fields(obj *Content) []any {
 		&obj.ID, &obj.Name, &obj.Genre, &obj.Runtime,
 		&obj.ReleaseYear, &obj.Synopsis, &obj.Price,
 		&obj.ProducerID, &obj.ProducerName, &obj.Thumbnail,
-		&obj.Trailer, &obj.Video, &obj.Category, &obj.Rating,
+		&obj.Trailer, &obj.Video, &obj.Category, &obj.Price, &obj.Rating,
 		&obj.ContentType, &obj.CreatedOn, &obj.CreatedBy, &obj.CreatedByName,
 	}
 }
@@ -43,7 +43,7 @@ func get_content_add_fields(obj *Content) []any {
 	return []any{
 		obj.Name, obj.Genre, obj.Runtime, obj.ReleaseYear, obj.Synopsis,
 		obj.Price, obj.ProducerID, obj.Thumbnail, obj.Trailer, obj.Video,
-		obj.Category, obj.ContentType,
+		obj.Category, obj.ContentType, obj.IsPublished,
 	}
 }
 
@@ -148,4 +148,14 @@ func get_purchase_add_fields(obj *Purchase) []any {
 		obj.ContentID, obj.Price, obj.Discount, obj.NetAmount,
 		obj.PaymentMode, obj.CustomerID,
 	}
+}
+
+func get_payment_order_fields(obj *PaymentOrder) []any {
+	return []any{
+		&obj.OrderID, &obj.PaymentID, &obj.Amount, &obj.Status,
+	}
+}
+
+func get_payment_order_add_fields(obj *PaymentOrder) []any {
+	return []any{obj.OrderID, obj.Amount}
 }

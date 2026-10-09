@@ -11,7 +11,7 @@ import (
 )
 
 var content_required_fields = []string{
-	"Name", "Genre", "Runtime", "ReleaseYear", "Synopsis", "Price",
+	"Name", "Genre", "Runtime", "ReleaseYear", "Synopsis", "Price", "IsPublished",
 	"ProducerID", "Thumbnail", "Video", "Category", "ContentType", "ActorList",
 }
 
@@ -54,10 +54,12 @@ func get_contents(ctx *fiber.Ctx) error {
 	var content models.Content
 	var offset int = utils.GetIntQueryParams(ctx.Query("offset"), 0)
 	var limit int = utils.GetIntQueryParams(ctx.Query("limit"), 10)
+	var published int = utils.GetIntQueryParams(ctx.Query("published"), 1)
 	var params = map[string]string{
-		"name":  ctx.Query("name"),
-		"genre": ctx.Query("genre"),
-		"type":  ctx.Query("type"),
+		"name":      ctx.Query("name"),
+		"genre":     ctx.Query("genre"),
+		"type":      ctx.Query("type"),
+		"published": fmt.Sprintf("%d", published),
 	}
 	var key = fmt.Sprintf("content-%s", ctx.OriginalURL())
 	cache_data, err := utils.GetData(key)
@@ -128,8 +130,9 @@ func get_content_by_id(ctx *fiber.Ctx) error {
 	var key = fmt.Sprintf("content-%s", id)
 	cache_data, err := utils.GetData(key)
 	if err != nil {
+		var published = utils.GetIntQueryParams(ctx.Query("published"), 1)
 		var content models.Content
-		result, err := content.GetById(id)
+		result, err := content.GetById(id, published)
 		if err != nil {
 			log.Error(err.Error())
 			return utils.GetMessageResponse("", "Unable to get Content Data", fiber.StatusInternalServerError, false, ctx)

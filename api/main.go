@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"leichil-backend/message_broker"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -32,6 +34,8 @@ func main() {
 		panic(err.Error())
 	}
 	defer rdb.Close()
+
+	message_broker.InitPublisher()
 
 	var app *fiber.App = fiber.New()
 	app.Static("/static", "./static")

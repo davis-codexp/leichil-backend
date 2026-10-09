@@ -57,8 +57,8 @@ var order_producer_filter = " ORDER BY p.created_on DESC"
 var get_contents_query = `
 	SELECT contents.id, contents.name, genre, runtime, release_year, synopsis,
 	price, producer_id, producers.name AS producer_name,
-	thumbnail, trailer, video, category, rating, content_type, contents.created_on,
-	contents.created_by, users.name AS created_by_name
+	thumbnail, trailer, video, category, price, rating, content_type,
+	contents.created_on, contents.created_by, users.name AS created_by_name
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
 	INNER JOIN users ON users.id = contents.created_by
@@ -69,7 +69,7 @@ var get_home_contents_query = `
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
 	INNER JOIN users ON users.id = contents.created_by
-	WHERE contents.is_deleted = 0
+	WHERE contents.is_deleted = 0 AND contents.is_published = 1
 `
 var count_contents_query = `
 	SELECT COUNT(contents.id) AS COUNT
@@ -81,13 +81,14 @@ var count_contents_query = `
 var insert_content_query = `
 	INSERT INTO contents(
 		name, genre, runtime, release_year, synopsis, price,
-		producer_id, thumbnail, trailer, video, category, content_type, created_by
-	) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		producer_id, thumbnail, trailer, video, category, content_type,
+		is_published, created_by
+	) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 var update_content_query = `
 	UPDATE contents SET name = ?, genre = ?, runtime = ?,
 	release_year = ?, synopsis = ?, price = ?, producer_id = ?, thumbnail = ?,
-	trailer = ?, video = ?, category = ?, content_type = ?
+	trailer = ?, video = ?, category = ?, content_type = ?, is_published = ?
 	WHERE id = ?
 `
 var update_content_average_rating_query = "UPDATE contents SET rating = ? WHERE id = ?"
@@ -97,6 +98,7 @@ var content_name_filter = " AND contents.name LIKE ?"
 var content_type_filter = " AND contents.content_type = ?"
 var content_category_filter = " AND contents.category = ?"
 var content_year_filter = " AND contents.release_year = ?"
+var content_published_filter = " AND contents.is_published = ?"
 var content_order_filter = " ORDER BY contents.created_on DESC"
 
 /*---------------------------EPISODE QUERIES--------------------------*/
@@ -322,13 +324,15 @@ var get_trending_contents_query = `
 	SELECT cca.content_id, con.name, con.thumbnail, con.release_year, con.genre, con.rating
 	FROM customer_content_activities cca
 	INNER JOIN contents con ON con.id = cca.content_id
-	where con.is_deleted = 0 AND cca.created_on >= NOW() - INTERVAL 30 DAY
+	where con.is_deleted = 0 AND con.is_published = 1
+	AND cca.created_on >= NOW() - INTERVAL 30 DAY
 `
 var get_continue_watching_query = `
 	SELECT DISTINCT(cca.content_id), cca.customer_id, cca.created_on, con.name, con.content_type, con.thumbnail
 	FROM customer_content_activities cca
 	INNER JOIN contents con ON con.id = cca.content_id
-	where con.is_deleted = 0 AND cca.created_on >= NOW() - INTERVAL 30 DAY
+	where con.is_deleted = 0 AND con.is_published = 1
+	AND cca.created_on >= NOW() - INTERVAL 30 DAY
 `
 var get_customer_content_activities_query = `
 	SELECT cca.id, cca.customer_id, cca.content_id, cca.episode_id, cca.created_on,
@@ -337,7 +341,7 @@ var get_customer_content_activities_query = `
 	FROM customer_content_activities cca
 	INNER JOIN contents con ON con.id = cca.content_id
 	INNER JOIN episodes ep ON ep.id = cca.episode_id
-	WHERE con.is_deleted = 0
+	WHERE con.is_deleted = 0 AND con.is_published = 1
 `
 var cca_content_type_filter = " AND con.content_type = ?"
 var cca_customer_filter = " AND cca.customer_id = ?"
@@ -382,3 +386,18 @@ var insert_pruchase_query = `
 		payment_mode, customer_id
 	) VALUES(?, ?, ?, ?, ?, ?)
 `
+
+/*------------------------PAYMENT ORDER QUERIES--------------------*/
+var get_payment_orders_query = `
+	SELECT order_id, payment_id, amount, status
+	FROM payment_orders
+	WHERE order_id IS NOT NULL
+`
+var insert_payment_order_query = `
+	INSERT INTO payment_orders(order_id, amount) VALUES(?, ?)
+`
+var update_payment_order_query = "UPDATE payment_orders SET status = ?, payment_id = ? WHERE order_id = ?"
+var payment_order_id_filter = " AND order_id = ?"
+var payment_order_payment_filter = " AND payment_id = ?"
+var payment_order_amount_filter = " AND amount = ?"
+var payment_order_status_filter = " AND status = ?"

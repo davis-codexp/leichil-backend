@@ -3,7 +3,8 @@ package message_broker
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -14,38 +15,50 @@ type SmsBody struct {
 	Text      string `json:"text"`
 }
 
-func SendSms(message_id, mobile, text string) {
-	const queue_name = "sms_queue"
-	conn := GetBrokerConnection()
+var publish_channel *amqp.Channel
+
+const queue_name = "sms_queue"
+
+func InitPublisher() {
+	var conn *amqp.Connection = GetBrokerConnection()
 	if conn == nil {
 		return
 	}
-	defer conn.Close()
-	channel := GetChannel(conn, queue_name)
+	var channel *amqp.Channel = GetChannel(conn, queue_name)
 	if channel == nil {
 		return
 	}
-	body := SmsBody{
+	publish_channel = channel
+}
+
+func SendSms(message_id, mobile, text string) {
+	if publish_channel == nil {
+		log.Print("Publish Channel is not initialized.")
+		return
+	}
+	var body = SmsBody{
 		Mobile:    mobile,
 		MessageID: message_id,
 		Text:      text,
 	}
-	PushToQueue(channel, queue_name, body)
+	PushToQueue(publish_channel, queue_name, body)
 }
 
 func PushToQueue(channel *amqp.Channel, queue_name string, body SmsBody) bool {
 	data, err := json.Marshal(body)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Print("Error in JSON Marshal of sms body: ", err.Error())
 		return false
 	}
-	message := amqp.Publishing{
-		ContentType: "text/plain",
+	var message = amqp.Publishing{
+		ContentType: "application/json",
 		Body:        data,
 	}
-	err = channel.PublishWithContext(context.TODO(), "", queue_name, false, false, message)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err = channel.PublishWithContext(ctx, "", queue_name, false, false, message)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Print("Unable to push SMS payload to Message Queue: ", err.Error())
 		return false
 	}
 	return true
