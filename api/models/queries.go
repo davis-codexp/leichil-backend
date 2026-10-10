@@ -391,3 +391,12 @@ var payment_order_amount_filter = " AND po.amount = ?"
 var payment_order_status_filter = " AND po.status = ?"
 var payment_content_filter = " AND po.content_id = ?"
 var payment_customer_filter = " AND po.customer_id = ?"
+
+/*------------------------DEVICE TOKEN QUERIES--------------------*/
+var get_device_tokens_query = `
+	SELECT device_token, customer_id, created_on
+	FROM device_tokens
+	WHERE customer_id = ?
+`
+var insert_device_token_query = "INSERT INTO device_tokens(device_token, customer_id) VALUES(?, ?)"
+var delete_device_token_query = "DELETE FROM device_tokens WHERE device_token = ?"
