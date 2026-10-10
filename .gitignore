@@ -5,3 +5,4 @@ tmp/
 *.mp4
 leichil-transcoder
 leichil-api
+firebase.json
