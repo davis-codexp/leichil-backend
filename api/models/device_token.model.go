@@ -12,9 +12,9 @@ type DeviceToken struct {
 	CreatedOn   *string `json:"created_on,omitempty"`
 }
 
-func (obj DeviceToken) Get(token CustomerToken) (CountResult, []any, error) {
+func (obj DeviceToken) Get(customer_id *int) (CountResult, []any, error) {
 	var fields = []any{&obj.DeviceToken, &obj.CustomerID, &obj.CreatedOn}
-	return GetListData([]any{token.CustomerID}, fields, &obj, "", get_device_tokens_query, 0, 10000)
+	return GetListData([]any{customer_id}, fields, &obj, "", get_device_tokens_query, 0, 10000)
 }
 
 func (obj *DeviceToken) Add(token CustomerToken) bool {

@@ -137,10 +137,11 @@ func get_content_rating_add_fields(obj *ContentRating) []any {
 
 func get_payment_order_fields(obj *PaymentOrder) []any {
 	return []any{
-		&obj.OrderID, &obj.PaymentID, &obj.Amount, &obj.Status,
+		&obj.OrderID, &obj.PaymentID, &obj.CustomerID, &obj.ContentID,
+		&obj.Amount, &obj.Status, &obj.PlanID,
 	}
 }
 
 func get_payment_order_add_fields(obj *PaymentOrder) []any {
-	return []any{obj.OrderID, obj.Amount}
+	return []any{obj.OrderID, obj.Amount, obj.ContentID, obj.PlanID, obj.CustomerID}
 }

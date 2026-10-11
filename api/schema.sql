@@ -155,10 +155,12 @@ CREATE TABLE payment_orders (
     payment_id VARCHAR(100) DEFAULT NULL,
     customer_id INT,
     content_id INT,
+    plan_id INT,
     amount INT NOT NULL DEFAULT 0, /*AMOUNT IN PAISE (INR)*/
     status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
     created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+    FOREIGN KEY(plan_id) REFERENCES subscription_plans(id),
     FOREIGN KEY(content_id) REFERENCES contents(id)
 );
 

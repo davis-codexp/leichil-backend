@@ -194,7 +194,24 @@ func (body *CustomerLoginBody) VerifyOtp() (CustomerLoginResult, bool) {
 		} else {
 			utils.DeleteData(fmt.Sprintf("token-%s", old_token))
 			utils.DeleteData(session_key)
-			//TODO: Send Push Notification to auto logout other device
+			var device DeviceToken
+			_, result, err := device.Get(otp.CustomerID)
+			if err != nil {
+				log.Error("Error in getting Device Tokens: ", err.Error())
+			} else {
+				var devices = utils.FormatListResult[DeviceToken](result)
+				var tokens []string
+				for _, item := range devices {
+					tokens = append(tokens, SanitizeData(item.DeviceToken))
+				}
+				if len(tokens) > 0 {
+					var data = map[string]string{
+						"action": "FORCE_LOGOUT",
+						"reason": "session_expired",
+					}
+					utils.SendMultipleSilentPushNotification(tokens, data)
+				}
+			}
 		}
 		utils.SetStringData(session_key, token, 0)
 		return customer, true

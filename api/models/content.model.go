@@ -113,6 +113,7 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 	var fields = []any{
 		&content.ID, &content.Name, &content.Thumbnail,
 		&content.ReleaseYear, &content.Genre, &content.Rating,
+		&content.Price, &content.Category,
 	}
 
 	var first_section_query string = get_home_contents_query + content_order_filter
@@ -184,6 +185,7 @@ func (obj Content) GetTrendingList(offset, limit int, params map[string]string) 
 	var fields = []any{
 		&obj.ID, &obj.Name, &obj.Thumbnail,
 		&obj.ReleaseYear, &obj.Genre, &obj.Rating,
+		&obj.Price, &obj.Category,
 	}
 	var query string = get_trending_contents_query
 	var filter = []any{}
@@ -199,6 +201,7 @@ func (obj Content) GetNewList(offset, limit int, params map[string]string) (Coun
 	var fields = []any{
 		&obj.ID, &obj.Name, &obj.Thumbnail,
 		&obj.ReleaseYear, &obj.Genre, &obj.Rating,
+		&obj.Price, &obj.Category,
 	}
 	var query string = get_home_contents_query
 	var filter = []any{}
@@ -223,6 +226,7 @@ func (obj HomeData) GetCustomList(token CustomerToken, content_type string) (Hom
 	var fields = []any{
 		&content.ID, &content.Name, &content.Thumbnail,
 		&content.ReleaseYear, &content.Genre, &content.Rating,
+		&content.Price, &content.Category,
 	}
 
 	var new_releases_query string = get_home_contents_query + content_type_filter + content_order_filter

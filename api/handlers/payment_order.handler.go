@@ -10,10 +10,13 @@ import (
 var payment_verification_required_fields = []string{"RazorpayOrderID", "RazorpayPaymentID", "RazorpaySignature"}
 var payment_update_required_fields = []string{"Status", "OrderID"}
 var order_required_fields = []string{"ContentID"}
+var subscription_order_required_fields = []string{"PlanID"}
 
 func app_order_handler(router fiber.Router) {
-	router.Post("/", add_payment_order)
-	router.Post("/verify", verify_payment)
+	router.Post("/", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "payment") })
+	router.Post("/subscriptions", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "subscription") })
+	router.Post("/verify", func(ctx *fiber.Ctx) error { return verify_payment(ctx, "payment") })
+	router.Post("/subscriptions/verify", func(ctx *fiber.Ctx) error { return verify_payment(ctx, "subscription") })
 	router.Put("/", update_payment)
 	router.Get("/purchases", get_customer_payment_orders)
 	router.Get("/purchases/:id", verify_customer_purchase)
@@ -52,12 +55,16 @@ func verify_customer_purchase(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-func add_payment_order(ctx *fiber.Ctx) error {
+func add_payment_order(ctx *fiber.Ctx, order_type string) error {
 	var order = new(models.PaymentOrder)
-	flag, status, message := utils.ParseAndValidate(order, order_required_fields, ctx)
+	var required_fields = order_required_fields
+	if order_type == "subscription" {
+		required_fields = subscription_order_required_fields
+	}
+	flag, status, message := utils.ParseAndValidate(order, required_fields, ctx)
 	if flag {
 		var token = ctx.Locals("customer_token").(models.CustomerToken)
-		var result = order.Create(token)
+		var result = order.Create(token, order_type)
 		var response = map[string]any{
 			"success": true,
 			"result":  result,
@@ -67,15 +74,20 @@ func add_payment_order(ctx *fiber.Ctx) error {
 	return utils.GetMessageResponse(message, message, status, flag, ctx)
 }
 
-func verify_payment(ctx *fiber.Ctx) error {
+func verify_payment(ctx *fiber.Ctx, order_type string) error {
 	var payment = new(models.VerifyPaymentBody)
-	flag, status, message := utils.ParseAndValidate(payment, payment_verification_required_fields, ctx)
+	var required_fields = payment_verification_required_fields
+	if order_type == "subscription" {
+		required_fields = append(required_fields, "PlanID")
+	}
+	flag, status, message := utils.ParseAndValidate(payment, required_fields, ctx)
 	if flag {
 		var response = map[string]any{
 			"success": false,
 			"message": "Payment Failed",
 		}
-		if payment.VerifyPayment() {
+		var token = ctx.Locals("customer_token").(models.CustomerToken)
+		if payment.VerifyPayment(token, order_type) {
 			response["success"] = true
 			response["message"] = "Payment Successful"
 		}

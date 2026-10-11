@@ -66,7 +66,8 @@ var get_contents_query = `
 `
 var get_content_price_query = "SELECT id, price FROM contents WHERE id = ?"
 var get_home_contents_query = `
-	SELECT contents.id, contents.name, thumbnail, release_year, genre, rating
+	SELECT contents.id, contents.name, thumbnail, release_year, genre, rating,
+	price, category
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
 	INNER JOIN users ON users.id = contents.created_by
@@ -316,13 +317,15 @@ var update_subscription_query = `
 	UPDATE subscriptions SET plan_id = ?, price = ?, expires_on = ? WHERE id = ?
 `
 var delete_subscription_query = "UPDATE subscriptions SET is_deleted = 1 WHERE id = ?"
+var extend_subscription_expiry_query = "UPDATE subscriptions SET expires_on = expires_on + INTERVAL ? DAY WHERE id = ?"
 
 /*------------------------CUSTOMER CONTENT ACTIVITIES--------------------*/
 var insert_content_activity_query = `
 	INSERT INTO customer_content_activities(customer_id, content_id, episode_id) VALUES(?, ?, ?)
 `
 var get_trending_contents_query = `
-	SELECT cca.content_id, con.name, con.thumbnail, con.release_year, con.genre, con.rating
+	SELECT cca.content_id, con.name, con.thumbnail, con.release_year,
+	con.genre, con.rating, con.price, con.category
 	FROM customer_content_activities cca
 	INNER JOIN contents con ON con.id = cca.content_id
 	where con.is_deleted = 0 AND con.is_published = 1
@@ -372,17 +375,14 @@ var fav_order_filter = " ORDER BY fav.created_on DESC"
 /*------------------------PAYMENT ORDER QUERIES--------------------*/
 var get_payment_orders_query = `
 	SELECT po.order_id, po.payment_id, po.customer_id, po.content_id,
-	po.amount, po.status, c.name as customer_name,
-	c.mobile as customer_mobile, con.name as content_name
+	po.amount, po.status, po.plan_id
 	FROM payment_orders po
-	INNER JOIN customers c on c.id = po.customer_id
-	INNER JOIN contents con ON con.id = po.content_id
 	WHERE po.order_id IS NOT NULL
 `
 var insert_payment_order_query = `
 	INSERT INTO payment_orders(
-		order_id, amount, content_id, customer_id
-	) VALUES(?, ?, ?, ?)
+		order_id, amount, content_id, plan_id, customer_id
+	) VALUES(?, ?, ?, ?, ?)
 `
 var update_payment_order_query = "UPDATE payment_orders SET status = ?, payment_id = ? WHERE order_id = ?"
 var payment_order_id_filter = " AND po.order_id = ?"

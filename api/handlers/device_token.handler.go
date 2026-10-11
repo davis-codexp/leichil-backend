@@ -18,7 +18,7 @@ func app_device_token_handler(router fiber.Router) {
 func get_device_tokens(ctx *fiber.Ctx) error {
 	var dt models.DeviceToken
 	var token = ctx.Locals("customer_token").(models.CustomerToken)
-	_, result, err := dt.Get(token)
+	_, result, err := dt.Get(token.CustomerID)
 	return utils.GetArrayResponse(ctx, 0, result, "Unable to get Device Tokens", err)
 }
 
