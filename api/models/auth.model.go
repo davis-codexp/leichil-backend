@@ -57,12 +57,21 @@ type CustomerLoginBody struct {
 	Otp    *int    `json:"otp,omitempty"`
 }
 
+type CustomerLogoutBody struct {
+	DeviceID *string `json:"device_id,omitempty"`
+}
+
 type CustomerLoginResult struct {
 	ID        *int    `json:"id,omitempty"`
 	Name      *string `json:"fullName,omitempty"`
 	Mobile    *string `json:"mobile,omitempty"`
 	Token     *string `json:"token,omitempty"`
 	CreatedOn *string `json:"created_on,omitempty"`
+}
+
+type PushToken struct {
+	Mobile *string `json:"mobile,omitempty"`
+	Token  *string `json:"token,omitempty"`
 }
 
 /*-------------------------USER AUTHENTICATION---------------------------*/
@@ -194,24 +203,15 @@ func (body *CustomerLoginBody) VerifyOtp() (CustomerLoginResult, bool) {
 		} else {
 			utils.DeleteData(fmt.Sprintf("token-%s", old_token))
 			utils.DeleteData(session_key)
-			var device DeviceToken
-			_, result, err := device.Get(otp.CustomerID)
-			if err != nil {
-				log.Error("Error in getting Device Tokens: ", err.Error())
-			} else {
-				var devices = utils.FormatListResult[DeviceToken](result)
-				var tokens []string
-				for _, item := range devices {
-					tokens = append(tokens, SanitizeData(item.DeviceToken))
+
+			/*
+				TODO get existing device_ids and send logout push notifications
+				var data = map[string]string{
+					"action": "FORCE_LOGOUT",
+					"reason": "session_expired",
 				}
-				if len(tokens) > 0 {
-					var data = map[string]string{
-						"action": "FORCE_LOGOUT",
-						"reason": "session_expired",
-					}
-					utils.SendMultipleSilentPushNotification(tokens, data)
-				}
-			}
+				utils.SendMultipleSilentPushNotification(tokens, data)
+			*/
 		}
 		utils.SetStringData(session_key, token, 0)
 		return customer, true
@@ -219,8 +219,12 @@ func (body *CustomerLoginBody) VerifyOtp() (CustomerLoginResult, bool) {
 	return customer, false
 }
 
-func (customer Customer) Logout(token CustomerToken) bool {
-	return utils.RunUpdate(delete_customer_token_query, []any{token.Token})
+func (customer CustomerLogoutBody) Logout(token CustomerToken) bool {
+	if SanitizeData(customer.DeviceID) != "" {
+		utils.RemoveDevice(SanitizeData(token.Mobile), SanitizeData(customer.DeviceID))
+	}
+	utils.DeleteData(fmt.Sprintf("session-%s", SanitizeData(token.Mobile)))
+	return utils.DeleteData(fmt.Sprintf("token-%s", SanitizeData(token.Token)))
 }
 
 func AuthenticateCustomer(auth_token string) (CustomerToken, bool) {

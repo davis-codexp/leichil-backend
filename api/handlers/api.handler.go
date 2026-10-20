@@ -51,6 +51,7 @@ func AdminApiHandler(router fiber.Router) {
 	var admin_customer_routes = router.Group("/customers")
 	var admin_subscription_plan_routes = router.Group("/subscription-plans")
 	var admin_subscription_routes = router.Group("/subscriptions")
+	var admin_notification_routes = router.Group("/notifications")
 
 	content_handler(admin_content_routes)
 	user_handler(admin_user_routes)
@@ -59,6 +60,7 @@ func AdminApiHandler(router fiber.Router) {
 	customer_handler(admin_customer_routes)
 	subscription_plan_handler(admin_subscription_plan_routes)
 	subscription_handler(admin_subscription_routes)
+	notification_handler(admin_notification_routes)
 }
 
 func AppApiHandler(router fiber.Router) {

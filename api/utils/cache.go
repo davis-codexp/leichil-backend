@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -13,6 +14,33 @@ import (
 
 var rdb *redis.Client
 var ctx = context.Background()
+
+const (
+	deviceIdsByPhone = "devices:phone:%s"
+	phoneByDeviceId  = "phone:device:%s"
+	allDeviceIds     = "all:devices"
+)
+
+/*
+local existing = redis.call('GET', KEYS[2])
+if existing and existing ~= ARGV[1] then
+	return redis.error_reply("Device already linked to another phone: " .. existing)
+end
+*/
+
+var add_device_script = redis.NewScript(`
+redis.call('SADD', KEYS[1], ARGV[2])
+redis.call('SET', KEYS[2], ARGV[1])
+redis.call('SADD', KEYS[3], ARGV[2])
+return 1
+`)
+
+var remove_device_script = redis.NewScript(`
+redis.call('SREM', KEYS[1], ARGV[1])
+redis.call('DEL', KEYS[2])
+redis.call('SREM', KEYS[3], ARGV[1])
+return 1
+`)
 
 func GetRedisConnection() (*redis.Client, error) {
 	var err = godotenv.Load()
@@ -130,4 +158,79 @@ func DeleteKeyPattern(pattern string) bool {
 	}
 
 	return true
+}
+
+func SetHashData(hash, key, value string) bool {
+	if err := rdb.HSet(ctx, hash, key, value).Err(); err != nil {
+		return false
+	}
+	return true
+}
+
+func GetAllHashData(hash string) (map[string]string, error) {
+	var list = make(map[string]string)
+	var iter *redis.ScanIterator = rdb.HScan(ctx, hash, 0, "*", 1000).Iterator()
+	for iter.Next(ctx) {
+		var field = iter.Val()
+		if !iter.Next(ctx) {
+			break
+		}
+		var value = iter.Val()
+		list[field] = value
+	}
+	if err := iter.Err(); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func GetSingleHashData(hash, key string) (string, error) {
+	data, err := rdb.HGet(ctx, hash, key).Result()
+	if err == redis.Nil {
+		return "", fmt.Errorf("No matching data found")
+	} else if err != nil {
+		return "", err
+	}
+	return data, nil
+}
+
+func AddDevice(phone_number, device_id string) bool {
+	var keys = []string{
+		fmt.Sprintf(deviceIdsByPhone, phone_number),
+		fmt.Sprintf(phoneByDeviceId, device_id),
+		allDeviceIds,
+	}
+	if err := add_device_script.Run(ctx, rdb, keys, phone_number, device_id).Err(); err != nil {
+		log.Error("Add device failed: ", err.Error())
+
+		return false
+	}
+	return true
+}
+
+func RemoveDevice(phone_number, device_id string) bool {
+	var keys = []string{
+		fmt.Sprintf(deviceIdsByPhone, phone_number),
+		fmt.Sprintf(phoneByDeviceId, device_id),
+		allDeviceIds,
+	}
+	if err := remove_device_script.Run(ctx, rdb, keys, device_id).Err(); err != nil {
+		log.Error("Remove device failed: ", err.Error())
+		return false
+	}
+	return true
+}
+
+func GetDevicesByPhone(phone_number string) ([]string, error) {
+	var key = fmt.Sprintf(deviceIdsByPhone, phone_number)
+	return rdb.SMembers(ctx, key).Result()
+}
+
+func GetPhoneByDevice(device_id string) (string, error) {
+	var key = fmt.Sprintf(phoneByDeviceId, device_id)
+	return rdb.Get(ctx, key).Result()
+}
+
+func GetAllDeviceIds() ([]string, error) {
+	return rdb.SMembers(ctx, allDeviceIds).Result()
 }

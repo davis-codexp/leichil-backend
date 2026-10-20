@@ -13,6 +13,7 @@ func AuthHandler(router fiber.Router) {
 	router.Post("/otp", get_customer_otp)
 	router.Post("/otp/verify", verify_customer_otp)
 	router.Post("/customer/logout", authenticate_customer, customer_logout)
+	router.Post("/devices/mobile", add_push_token)
 }
 
 func user_login(ctx *fiber.Ctx) error {
@@ -83,13 +84,29 @@ func verify_customer_otp(ctx *fiber.Ctx) error {
 }
 
 func customer_logout(ctx *fiber.Ctx) error {
-	var customer models.Customer
+	var body = new(models.CustomerLogoutBody)
+	var required_fields = []string{"DeviceID"}
+	_, _, _ = utils.ParseAndValidate(body, required_fields, ctx)
 	var token = ctx.Locals("customer_token").(models.CustomerToken)
 	var status = fiber.StatusInternalServerError
 	var flag = false
-	if customer.Logout(token) {
+	if body.Logout(token) {
 		status = fiber.StatusOK
 		flag = true
 	}
 	return utils.GetMessageResponse("Logged Out", "Unable to Log Out", status, flag, ctx)
+}
+
+func add_push_token(ctx *fiber.Ctx) error {
+	var body = new(models.PushToken)
+	var required_fields = []string{"Mobile", "Token"}
+	flag, status, message := utils.ParseAndValidate(body, required_fields, ctx)
+	if flag {
+		if !utils.AddDevice(models.SanitizeData(body.Mobile), models.SanitizeData(body.Token)) {
+			flag = false
+			status = fiber.StatusInternalServerError
+			message = "Unable to save device token"
+		}
+	}
+	return utils.GetMessageResponse(message, message, status, flag, ctx)
 }

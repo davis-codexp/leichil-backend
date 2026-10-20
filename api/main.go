@@ -36,6 +36,7 @@ func main() {
 	defer rdb.Close()
 
 	message_broker.InitPublisher()
+	utils.InitFirebase()
 
 	var app *fiber.App = fiber.New()
 	app.Static("/static", "./static")

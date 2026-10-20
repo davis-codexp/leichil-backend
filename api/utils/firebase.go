@@ -12,22 +12,22 @@ import (
 var fcm_client *messaging.Client
 
 type PushNotificationRequest struct {
-	DeviceToken string            `json:"device_token"`
-	Title       string            `json:"title"`
-	Body        string            `json:"body"`
-	Data        map[string]string `json:"data,omitempty"`
+	DeviceID *string            `json:"device_id"`
+	Title    *string            `json:"title"`
+	Body     *string            `json:"body"`
+	Data     *map[string]string `json:"data,omitempty"`
 }
 
 type MultiplePushNotificationRequest struct {
-	DeviceTokens []string          `json:"device_tokens"`
-	Title        string            `json:"title"`
-	Body         string            `json:"body"`
-	Data         map[string]string `json:"data,omitempty"`
+	DeviceIDs *[]string          `json:"device_ids"`
+	Title     *string            `json:"title"`
+	Body      *string            `json:"body"`
+	Data      *map[string]string `json:"data,omitempty"`
 }
 
 func InitFirebase() {
 	var ctx = context.Background()
-	var opt option.ClientOption = option.WithCredentialsFile("fierbase.json")
+	var opt option.ClientOption = option.WithCredentialsFile("firebase.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Println("Unable to initialize Firebase App: ", err.Error())
@@ -41,9 +41,9 @@ func InitFirebase() {
 	log.Println("Firebase Initialized!!")
 }
 
-func SendPushNotification(device_token, title, body string, data map[string]string) bool {
+func SendPushNotification(device_id, title, body string, data map[string]string) bool {
 	var message = &messaging.Message{
-		Token: device_token,
+		Token: device_id,
 		Notification: &messaging.Notification{
 			Title: title,
 			Body:  body,
@@ -59,9 +59,9 @@ func SendPushNotification(device_token, title, body string, data map[string]stri
 	return true
 }
 
-func SendMultiplePushNotification(device_tokens []string, title, body string, data map[string]string) bool {
+func SendMultiplePushNotification(device_ids []string, title, body string, data map[string]string) bool {
 	var message = &messaging.MulticastMessage{
-		Tokens: device_tokens,
+		Tokens: device_ids,
 		Notification: &messaging.Notification{
 			Title: title,
 			Body:  body,
@@ -77,9 +77,9 @@ func SendMultiplePushNotification(device_tokens []string, title, body string, da
 	return true
 }
 
-func SendMultipleSilentPushNotification(device_tokens []string, data map[string]string) bool {
+func SendMultipleSilentPushNotification(device_ids []string, data map[string]string) bool {
 	var message = &messaging.MulticastMessage{
-		Tokens: device_tokens,
+		Tokens: device_ids,
 		Data:   data,
 	}
 	br, err := fcm_client.SendMulticast(context.Background(), message)
