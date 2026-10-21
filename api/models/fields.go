@@ -117,6 +117,14 @@ func get_cca_fields(obj *CustomerContentActivity) []any {
 	}
 }
 
+func get_fav_fields(obj *CustomerFavourite) []any {
+	return []any{
+		&obj.CustomerID, &obj.ContentID, &obj.CreatedOn,
+		&obj.CustomerName, &obj.ContentName, &obj.Thumbnail,
+		&obj.Genre, &obj.Runtime, &obj.Video, &obj.ReleaseYear, &obj.Rating,
+	}
+}
+
 func get_continue_watching_fields(obj *CustomerContentActivity) []any {
 	return []any{
 		&obj.ContentID, &obj.CustomerID, &obj.CreatedOn,

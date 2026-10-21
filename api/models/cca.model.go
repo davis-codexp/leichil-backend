@@ -67,15 +67,11 @@ type CustomerFavourite struct {
 	Rating       *float32 `json:"rating,omitempty"`
 }
 
-func (fav CustomerFavourite) Get(offset, limit int, token CustomerToken) (CountResult, []any, error) {
-	var fields = []any{
-		&fav.CustomerID, &fav.ContentID, &fav.CreatedOn,
-		&fav.CustomerName, &fav.ContentName, &fav.Thumbnail,
-		&fav.Genre, &fav.Runtime, &fav.Video, &fav.ReleaseYear, &fav.Rating,
-	}
+func (fav CustomerFavourite) Get(offset, limit int, params map[string]string, token CustomerToken) (CountResult, []any, error) {
+	var fields []any = get_fav_fields(&fav)
 	var query string = get_customer_favourites_query
-	var filter = []any{token.CustomerID}
-	query += fav_order_filter
+	filter_query, filter := fav.QueryBuilder(params, token)
+	query += filter_query + fav_order_filter
 	return GetListData(filter, fields, &fav, "", query, offset, limit)
 }
 
@@ -86,4 +82,14 @@ func (fav *CustomerFavourite) Add(token CustomerToken) bool {
 
 func (fav CustomerFavourite) Delete(content_id string, token CustomerToken) bool {
 	return utils.RunUpdate(delete_customer_favourite_query, []any{token.CustomerID, content_id})
+}
+
+func (fav CustomerFavourite) QueryBuilder(params map[string]string, token CustomerToken) (string, []any) {
+	var query string
+	var filter = []any{token.CustomerID}
+	if len(params["content"]) > 0 {
+		query += fav_content_filter
+		filter = append(filter, params["content"])
+	}
+	return query, filter
 }

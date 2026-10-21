@@ -53,8 +53,11 @@ func get_customer_favourites(ctx *fiber.Ctx) error {
 	var fav models.CustomerFavourite
 	var offset int = utils.GetIntQueryParams(ctx.Query("offset"), 0)
 	var limit int = utils.GetIntQueryParams(ctx.Query("limit"), 10)
+	var params = map[string]string{
+		"content": ctx.Query("content"),
+	}
 	var token = ctx.Locals("customer_token").(models.CustomerToken)
-	_, result, err := fav.Get(offset, limit, token)
+	_, result, err := fav.Get(offset, limit, params, token)
 	return utils.GetArrayResponse(ctx, 0, result, "Unable to get Favourites", err)
 }
 

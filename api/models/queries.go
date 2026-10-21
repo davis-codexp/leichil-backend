@@ -371,6 +371,7 @@ var delete_customer_favourite_query = `
 	DELETE FROM customer_favourites WHERE customer_id = ? AND content_id = ?
 `
 var fav_order_filter = " ORDER BY fav.created_on DESC"
+var fav_content_filter = " AND fav.content_id = ?"
 
 /*------------------------PAYMENT ORDER QUERIES--------------------*/
 var get_payment_orders_query = `

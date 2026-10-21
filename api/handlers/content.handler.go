@@ -277,7 +277,10 @@ func add_content_rating(ctx *fiber.Ctx) error {
 	flag, status, message := utils.ParseAndValidate(cr, content_rating_required_fields, ctx)
 	if flag {
 		var token = ctx.Locals("customer_token").(models.CustomerToken)
-		if cr.Add(ctx.Params("id"), token) {
+		var content_id = ctx.Params("id")
+		if cr.Add(content_id, token) {
+			log.Info(fmt.Sprintf("content-%s", content_id))
+			utils.DeleteData(fmt.Sprintf("content-%s", content_id))
 			status = fiber.StatusOK
 			message = "Content Rating Added"
 		} else {
@@ -293,7 +296,9 @@ func update_content_rating(ctx *fiber.Ctx) error {
 	flag, status, message := utils.ParseAndValidate(cr, content_rating_required_fields, ctx)
 	if flag {
 		var token = ctx.Locals("customer_token").(models.CustomerToken)
-		if cr.Update(ctx.Params("id"), token) {
+		var content_id = ctx.Params("id")
+		if cr.Update(content_id, token) {
+			utils.DeleteData(fmt.Sprintf("content-%s", content_id))
 			status = fiber.StatusOK
 			message = "Content Rating Updated"
 		} else {
