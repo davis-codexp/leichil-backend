@@ -61,7 +61,7 @@ func get_customer_otp(ctx *fiber.Ctx) error {
 			message = "An OTP has been sent to your registered mobile number"
 		} else {
 			flag = false
-			message = "Invalid Mobile Number"
+			message = "Please Create an Account first"
 		}
 	}
 	return utils.GetMessageResponse(message, message, status, flag, ctx)

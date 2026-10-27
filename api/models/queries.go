@@ -376,8 +376,9 @@ var fav_content_filter = " AND fav.content_id = ?"
 /*------------------------PAYMENT ORDER QUERIES--------------------*/
 var get_payment_orders_query = `
 	SELECT po.order_id, po.payment_id, po.customer_id, po.content_id,
-	po.amount, po.status, po.plan_id
+	po.amount, po.status, po.plan_id, con.thumbnail
 	FROM payment_orders po
+	INNER JOIN contents con ON con.id = po.content_id
 	WHERE po.order_id IS NOT NULL
 `
 var insert_payment_order_query = `

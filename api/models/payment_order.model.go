@@ -29,6 +29,7 @@ type PaymentOrder struct {
 	CustomerName   *string `json:"customer_name,omitempty"`
 	CustomerMobile *string `json:"customer_mobile,omitempty"`
 	ContentName    *string `json:"content_name,omitempty"`
+	Thumbnail      *string `json:"thumbnail,omitempty"`
 }
 
 type VerifyPaymentBody struct {
