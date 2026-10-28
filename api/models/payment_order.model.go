@@ -160,6 +160,12 @@ func (obj *VerifyPaymentBody) VerifyPayment(token CustomerToken, order_type stri
 			//Extend Subscription by 1 month
 			sub = utils.FormatSingleResult[Subscription](result)
 			utils.RunUpdate(extend_subscription_expiry_query, []any{30, sub.ID})
+			var list = get_device_tokens(token)
+			if len(list) > 0 {
+				for _, device_id := range list {
+					utils.SendPushNotification(device_id, "Subscription Extened", "Your BASIC Subscription extended by 1 month as complimentary offer with your purchase.", map[string]string{})
+				}
+			}
 		} else {
 			//Create New Subscription
 			var plan SubscriptionPlan
@@ -175,9 +181,29 @@ func (obj *VerifyPaymentBody) VerifyPayment(token CustomerToken, order_type stri
 			sub.CustomerID = token.CustomerID
 			sub.PlanID = plan.ID
 			sub.Add(token)
+			var list = get_device_tokens(token)
+			if len(list) > 0 {
+				for _, device_id := range list {
+					utils.SendPushNotification(device_id, "Subscription Unlocked", "1 Month BASIC Subscription Activated as complimentary offer with your purchase.", map[string]string{})
+				}
+			}
 		}
 	}
 	return flag
+}
+
+func get_device_tokens(token CustomerToken) []string {
+	var list []string
+	var err error
+	var mobile = SanitizeData(token.Mobile)
+	if len(mobile) > 0 {
+		list, err = utils.GetDevicesByPhone(mobile)
+		if err != nil {
+			log.Error("Error in Getting device tokens by phone: ", err.Error())
+			return list
+		}
+	}
+	return list
 }
 
 func (obj *PaymentOrder) Update() bool {

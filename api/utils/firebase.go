@@ -52,7 +52,7 @@ func SendPushNotification(device_id, title, body string, data map[string]string)
 	}
 	message_id, err := fcm_client.Send(context.Background(), message)
 	if err != nil {
-		log.Println("Error in sending push notification")
+		log.Println("Error in sending push notification", err.Error())
 		return false
 	}
 	log.Println("Push Notification Message ID: ", message_id)

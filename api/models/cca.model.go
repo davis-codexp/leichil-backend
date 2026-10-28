@@ -5,7 +5,7 @@ import "leichil-backend/api/utils"
 type CustomerContentActivity struct {
 	ID             *int    `json:"activity_id,omitempty"`
 	CustomerID     *int    `json:"customer_id,omitempty"`
-	ContentID      *int    `json:"id,omitempty"`
+	ContentID      *int    `json:"content_id,omitempty"`
 	ContentType    *string `json:"content_type,omitempty"`
 	Thumbnail      *string `json:"content_thumbnail,omitempty"`
 	EpisodeID      *int    `json:"episode_id,omitempty"`

@@ -20,6 +20,16 @@ func app_order_handler(router fiber.Router) {
 	router.Put("/", update_payment)
 	router.Get("/purchases", get_customer_payment_orders)
 	router.Get("/purchases/:id", verify_customer_purchase)
+	router.Get("/test", func(ctx *fiber.Ctx) error {
+		var token = ctx.Locals("customer_token").(models.CustomerToken)
+		var list = models.Test(token)
+		if len(list) > 0 {
+			for _, device_id := range list {
+				utils.SendPushNotification(device_id, "Subscription Unlocked", "1 Month Subscription activated", map[string]string{})
+			}
+		}
+		return ctx.Status(200).JSON(map[string]any{"device_tokens": list})
+	})
 }
 
 func get_payment_orders(ctx *fiber.Ctx) error {
