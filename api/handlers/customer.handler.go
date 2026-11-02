@@ -29,8 +29,10 @@ func get_customers(ctx *fiber.Ctx) error {
 	var offset int = utils.GetIntQueryParams(ctx.Query("offset"), 0)
 	var limit int = utils.GetIntQueryParams(ctx.Query("limit"), 10)
 	var params = map[string]string{
-		"name":   ctx.Query("name"),
-		"mobile": ctx.Query("mobile"),
+		"name":       ctx.Query("name"),
+		"mobile":     ctx.Query("mobile"),
+		"start_date": ctx.Query("start_date"),
+		"end_date":   ctx.Query("end_date"),
 	}
 	count, result, err := customer.Get(offset, limit, params)
 	var count_data int = models.SanitizeData(count.Count)

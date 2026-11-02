@@ -30,8 +30,18 @@ func get_content_fields(obj *Content) []any {
 		&obj.ID, &obj.Name, &obj.Genre, &obj.Runtime,
 		&obj.ReleaseYear, &obj.Synopsis, &obj.Price,
 		&obj.ProducerID, &obj.ProducerName, &obj.Thumbnail,
+		&obj.TVThumbnail, &obj.Banner, &obj.TitleImage,
 		&obj.Trailer, &obj.Video, &obj.Category, &obj.Price, &obj.Rating,
 		&obj.ContentType, &obj.CreatedOn, &obj.CreatedBy, &obj.CreatedByName,
+	}
+}
+
+func get_home_content_fields(obj *Content) []any {
+	return []any{
+		&obj.ID, &obj.Name, &obj.Thumbnail,
+		&obj.TVThumbnail, &obj.Banner, &obj.TitleImage,
+		&obj.ReleaseYear, &obj.Genre, &obj.Rating,
+		&obj.Price, &obj.Category,
 	}
 }
 
@@ -42,8 +52,9 @@ func get_cast_fields(obj *Cast) []any {
 func get_content_add_fields(obj *Content) []any {
 	return []any{
 		obj.Name, obj.Genre, obj.Runtime, obj.ReleaseYear, obj.Synopsis,
-		obj.Price, obj.ProducerID, obj.Thumbnail, obj.Trailer, obj.Video,
-		obj.Category, obj.ContentType, obj.IsPublished,
+		obj.Price, obj.ProducerID, obj.Thumbnail, obj.TVThumbnail, obj.Banner,
+		obj.TitleImage, obj.Trailer, obj.Video, obj.Category, obj.ContentType,
+		obj.IsPublished,
 	}
 }
 
@@ -146,7 +157,8 @@ func get_content_rating_add_fields(obj *ContentRating) []any {
 func get_payment_order_fields(obj *PaymentOrder) []any {
 	return []any{
 		&obj.OrderID, &obj.PaymentID, &obj.CustomerID, &obj.ContentID,
-		&obj.Amount, &obj.Status, &obj.PlanID, &obj.Thumbnail,
+		&obj.Amount, &obj.Status, &obj.PlanID, &obj.CreatedOn,
+		&obj.Thumbnail,
 	}
 }
 

@@ -12,6 +12,10 @@ var payment_update_required_fields = []string{"Status", "OrderID"}
 var order_required_fields = []string{"ContentID"}
 var subscription_order_required_fields = []string{"PlanID"}
 
+func order_handler(router fiber.Router) {
+	router.Get("/", get_payment_orders)
+}
+
 func app_order_handler(router fiber.Router) {
 	router.Post("/", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "payment") })
 	router.Post("/subscriptions", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "subscription") })
@@ -30,9 +34,11 @@ func get_payment_orders(ctx *fiber.Ctx) error {
 		"order_id":    ctx.Query("order_id"),
 		"payment_id":  ctx.Query("payment_id"),
 		"amount":      ctx.Query("amount"),
-		"status":      ctx.Query("content"),
+		"status":      ctx.Query("status"),
 		"content_id":  ctx.Query("content_id"),
 		"customer_id": ctx.Query("customer_id"),
+		"start_date":  ctx.Query("start_date"),
+		"end_date":    ctx.Query("end_date"),
 	}
 	_, result, err := payment.Get(offset, limit, params)
 	return utils.GetArrayResponse(ctx, 0, result, "Unable to get Payment Orders", err)
@@ -97,16 +103,20 @@ func verify_payment(ctx *fiber.Ctx, order_type string) error {
 }
 
 func update_payment(ctx *fiber.Ctx) error {
-	var payment = new(models.PaymentOrder)
-	flag, status, message := utils.ParseAndValidate(payment, payment_update_required_fields, ctx)
-	if flag {
-		if payment.Update() {
-			flag = true
-			message = "Payment Order Updated"
-		} else {
-			flag = false
-			message = "Payment Order Update Failed"
+	var message = "Processing Payment"
+	return utils.GetMessageResponse(message, message, fiber.StatusOK, true, ctx)
+	/*
+		var payment = new(models.PaymentOrder)
+		flag, status, message := utils.ParseAndValidate(payment, payment_update_required_fields, ctx)
+		if flag {
+			if payment.Update() {
+				flag = true
+				message = "Payment Order Updated"
+			} else {
+				flag = false
+				message = "Payment Order Update Failed"
+			}
 		}
-	}
-	return utils.GetMessageResponse(message, message, status, flag, ctx)
+		return utils.GetMessageResponse(message, message, status, flag, ctx)
+	*/
 }

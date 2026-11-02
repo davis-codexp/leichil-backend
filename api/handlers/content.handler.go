@@ -91,16 +91,18 @@ func get_home_contents(ctx *fiber.Ctx) error {
 }
 
 func get_continue_watching_list(ctx *fiber.Ctx) error {
-	var cca models.CustomerContentActivity
-	var token = ctx.Locals("customer_token").(models.CustomerToken)
-	result, err := cca.GetContinueWatching(token)
-	if err != nil {
-		log.Error("Error in getting Continue Watching List: ", err.Error())
-		return utils.GetMessageResponse("", "Unable to get continue watching list", fiber.StatusInternalServerError, false, ctx)
-	}
+	/*
+		var cca models.CustomerContentActivity
+		var token = ctx.Locals("customer_token").(models.CustomerToken)
+		result, err := cca.GetContinueWatching(token)
+		if err != nil {
+			log.Error("Error in getting Continue Watching List: ", err.Error())
+			return utils.GetMessageResponse("", "Unable to get continue watching list", fiber.StatusInternalServerError, false, ctx)
+		}
+	*/
 	var response = map[string]any{
 		"success": true,
-		"result":  result,
+		"result":  []any{},
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }

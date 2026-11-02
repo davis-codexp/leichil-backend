@@ -57,8 +57,9 @@ var order_producer_filter = " ORDER BY p.created_on DESC"
 var get_contents_query = `
 	SELECT contents.id, contents.name, genre, runtime, release_year, synopsis,
 	price, producer_id, producers.name AS producer_name,
-	thumbnail, trailer, video, category, price, rating, content_type,
-	contents.created_on, contents.created_by, users.name AS created_by_name
+	thumbnail, trailer, thumbnail, banner, title_image, video, category,
+	price, rating, content_type, contents.created_on, contents.created_by,
+	users.name AS created_by_name
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
 	INNER JOIN users ON users.id = contents.created_by
@@ -66,8 +67,8 @@ var get_contents_query = `
 `
 var get_content_price_query = "SELECT id, price FROM contents WHERE id = ?"
 var get_home_contents_query = `
-	SELECT contents.id, contents.name, thumbnail, release_year, genre, rating,
-	price, category
+	SELECT contents.id, contents.name, thumbnail, title_image, banner, title_image,
+	release_year, genre, rating, price, category
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
 	INNER JOIN users ON users.id = contents.created_by
@@ -83,14 +84,16 @@ var count_contents_query = `
 var insert_content_query = `
 	INSERT INTO contents(
 		name, genre, runtime, release_year, synopsis, price,
-		producer_id, thumbnail, trailer, video, category, content_type,
+		producer_id, thumbnail, tv_thumbnail, banner, title_image,
+		trailer, video, category, content_type,
 		is_published, created_by
-	) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 var update_content_query = `
 	UPDATE contents SET name = ?, genre = ?, runtime = ?,
 	release_year = ?, synopsis = ?, price = ?, producer_id = ?, thumbnail = ?,
-	trailer = ?, video = ?, category = ?, content_type = ?, is_published = ?
+	trailer = ?, tv_thumbnail = ?, banner = ?, title_image = ?, video = ?, category = ?,
+	content_type = ?, is_published = ?
 	WHERE id = ?
 `
 var update_content_average_rating_query = "UPDATE contents SET rating = ? WHERE id = ?"
@@ -202,6 +205,7 @@ var get_customers_query = `
 	SELECT id, name, mobile, avatar, created_on
 	FROM customers WHERE is_deleted = 0
 `
+var customer_date_range_filter = " AND created_on BETWEEN ? AND ?"
 var count_customers_query = `SELECT COUNT(id) AS COUNT FROM customers WHERE is_deleted = 0`
 var insert_customer_query = `INSERT INTO customers(name, mobile) VALUES(?, ?)`
 var update_customer_query = `UPDATE customers SET name = ?, avatar = ? WHERE id = ?`
@@ -376,9 +380,9 @@ var fav_content_filter = " AND fav.content_id = ?"
 /*------------------------PAYMENT ORDER QUERIES--------------------*/
 var get_payment_orders_query = `
 	SELECT po.order_id, po.payment_id, po.customer_id, po.content_id,
-	po.amount, po.status, po.plan_id, con.thumbnail
+	po.amount, po.status, po.plan_id, po.created_on, con.thumbnail
 	FROM payment_orders po
-	INNER JOIN contents con ON con.id = po.content_id
+	LEFT JOIN contents con ON con.id = po.content_id
 	WHERE po.order_id IS NOT NULL
 `
 var insert_payment_order_query = `
@@ -393,6 +397,7 @@ var payment_order_amount_filter = " AND po.amount = ?"
 var payment_order_status_filter = " AND po.status = ?"
 var payment_content_filter = " AND po.content_id = ?"
 var payment_customer_filter = " AND po.customer_id = ?"
+var payment_date_range_filter = " AND po.created_on BETWEEN ? AND ?"
 
 /*------------------------DEVICE TOKEN QUERIES--------------------*/
 var get_device_tokens_query = `

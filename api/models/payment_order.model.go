@@ -5,6 +5,7 @@ import (
 	"hash"
 	"leichil-backend/api/utils"
 	"os"
+	"strings"
 
 	"crypto/hmac"
 	"crypto/sha256"
@@ -131,76 +132,123 @@ func (obj *VerifyPaymentBody) VerifyPayment(token CustomerToken, order_type stri
 	var flag = true
 	var status = "SUCCESS"
 	var signature_payload = SanitizeData(obj.RazorpayOrderID) + "|" + SanitizeData(obj.RazorpayPaymentID)
+	log.Info("RAZORPAY ORDER ID: ", SanitizeData(obj.RazorpayOrderID))
+	log.Info("RAZORPAY PAYMENT ID: ", SanitizeData(obj.RazorpayPaymentID))
 	var h hash.Hash = hmac.New(sha256.New, []byte(rzp_secret))
 	h.Write([]byte(signature_payload))
 	var signature = hex.EncodeToString(h.Sum(nil))
 	if signature != SanitizeData(obj.RazorpaySignature) {
-		log.Info("Invalid transaction signature")
+		log.Info("Invalid transaction signature: ", signature, SanitizeData(obj.RazorpaySignature))
 		status = "FAILED"
 		flag = false
 	}
 	var fields = []any{status, obj.RazorpayPaymentID, obj.RazorpayOrderID}
 	utils.RunUpdate(update_payment_order_query, fields)
-	if order_type == "subscription" && obj.PlanID != nil {
-		var sub = new(Subscription)
-		sub.CustomerID = token.CustomerID
-		sub.PlanID = obj.PlanID
-		sub.Add(token)
-	} else if order_type == "payment" {
-		var sub Subscription
-		var sub_query = get_subscriptions_query + subscription_customer_filter + subscription_not_expired_filter + " LIMIT 1"
-		var sub_fields = get_subscription_fields(&sub)
-		var sub_filter = []any{token.CustomerID}
-		result, err := GetSingleData(sub_filter, sub_fields, &sub, sub_query)
-		if err != nil {
-			log.Error("Error in Getting Active Customer Subscriptions: ", err.Error())
-			return flag
-		}
-		if len(result) > 0 {
-			//Extend Subscription by 1 month
-			sub = utils.FormatSingleResult[Subscription](result)
-			utils.RunUpdate(extend_subscription_expiry_query, []any{30, sub.ID})
-			var list = get_device_tokens(token)
-			if len(list) > 0 {
-				for _, device_id := range list {
-					utils.SendPushNotification(device_id, "Subscription Extened", "Your BASIC Subscription extended by 1 month as complimentary offer with your purchase.", map[string]string{})
-				}
-			}
-		} else {
-			//Create New Subscription
-			var plan SubscriptionPlan
-			var plan_query string = get_subscription_plans_query + subscription_plan_name_filter
-			var plan_fields []any = get_subscription_plan_fields(&plan)
-			result, err := GetSingleData([]any{"BASIC"}, plan_fields, &plan, plan_query)
-			if err != nil {
-				log.Error("Error in getting BASIC plan ID: ", err.Error())
-				return flag
-			}
-			plan = utils.FormatSingleResult[SubscriptionPlan](result)
-			var sub = new(Subscription)
-			sub.CustomerID = token.CustomerID
-			sub.PlanID = plan.ID
-			sub.Add(token)
-			var list = get_device_tokens(token)
-			if len(list) > 0 {
-				for _, device_id := range list {
-					utils.SendPushNotification(device_id, "Subscription Unlocked", "1 Month BASIC Subscription Activated as complimentary offer with your purchase.", map[string]string{})
-				}
-			}
-		}
-	}
 	return flag
 }
 
-func get_device_tokens(token CustomerToken) []string {
-	var list []string
-	var err error
-	var mobile = SanitizeData(token.Mobile)
-	if len(mobile) > 0 {
-		list, err = utils.GetDevicesByPhone(mobile)
+func (po PaymentOrder) UpdateOrder(status, payment_id, order_id string) bool {
+	var fields = []any{status, payment_id, order_id}
+	return utils.RunUpdate(update_payment_order_query, fields)
+}
+
+func (po PaymentOrder) UpdateSubscription(order_id string) {
+	payment_type, po := get_payment_type_by_id(order_id)
+	switch strings.ToUpper(payment_type) {
+	case "SUBSCRIPTION":
+		var sub = new(Subscription)
+		var token = CustomerToken{CustomerID: po.CustomerID}
+		sub.CustomerID = po.CustomerID
+		sub.PlanID = po.PlanID
+		sub.Add(token)
+	case "PURCHASE":
+		complimentary_subscription(po)
+	default:
+		log.Info("Invalid Payment Type: ", payment_type)
+	}
+}
+
+func complimentary_subscription(po PaymentOrder) {
+	var sub Subscription
+	var sub_query = get_subscriptions_query + subscription_customer_filter + subscription_not_expired_filter + " LIMIT 1"
+	var sub_fields = get_subscription_fields(&sub)
+	var sub_filter = []any{po.CustomerID}
+	result, err := GetSingleData(sub_filter, sub_fields, &sub, sub_query)
+	if err != nil {
+		log.Error("Error in Getting Active Customer Subscriptions: ", err.Error())
+		return
+	}
+	if len(result) > 0 {
+		sub = utils.FormatSingleResult[Subscription](result)
+		utils.RunUpdate(extend_subscription_expiry_query, []any{30, sub.ID})
+		var list = get_device_tokens(SanitizeData(po.CustomerID))
+		if len(list) > 0 {
+			for _, device_id := range list {
+				utils.SendPushNotification(device_id, "Subscription Extened", "Your BASIC Subscription is extended by 1 month as a complimentary offer with your purchase.", map[string]string{})
+			}
+		}
+	} else {
+		var plan SubscriptionPlan
+		var plan_query string = get_subscription_plans_query + subscription_plan_name_filter
+		var plan_fields []any = get_subscription_plan_fields(&plan)
+		result, err := GetSingleData([]any{"BASIC"}, plan_fields, &plan, plan_query)
 		if err != nil {
-			log.Error("Error in Getting device tokens by phone: ", err.Error())
+			log.Error("Error in getting BASIC plan ID: ", err.Error())
+			return
+		}
+		plan = utils.FormatSingleResult[SubscriptionPlan](result)
+		var sub = new(Subscription)
+		var token = CustomerToken{CustomerID: po.CustomerID}
+		sub.CustomerID = po.CustomerID
+		sub.PlanID = plan.ID
+		sub.Add(token)
+		var list = get_device_tokens(SanitizeData(po.CustomerID))
+		if len(list) > 0 {
+			for _, device_id := range list {
+				utils.SendPushNotification(device_id, "Subscription Unlocked", "1 Month BASIC Subscription Activated as complimentary offer with your purchase.", map[string]string{})
+			}
+		}
+	}
+}
+
+func get_payment_type_by_id(order_id string) (string, PaymentOrder) {
+	var po PaymentOrder
+	var fields = get_payment_order_fields(&po)
+	var query string = get_payment_orders_query + payment_order_id_filter
+	var filter = []any{order_id}
+	result, err := GetSingleData(filter, fields, &po, query)
+	if err != nil {
+		log.Error("Unable to Get Payment Type: ", err.Error())
+		return "", po
+	}
+	po = utils.FormatSingleResult[PaymentOrder](result)
+	if po.PlanID != nil {
+		return "SUBSCRIPTION", po
+	} else if po.ContentID != nil {
+		return "PURCHASE", po
+	}
+	return "", po
+}
+
+func get_device_tokens(customer_id int) []string {
+	var list []string
+	if customer_id > 0 {
+		var cus Customer
+		var cus_query = get_customers_query + id_filter
+		var cus_fields = get_customer_fields(&cus)
+		result, err := GetSingleData([]any{customer_id}, cus_fields, &cus, cus_query)
+		if err != nil {
+			log.Error("Unable to get customer data: ", err.Error())
 			return list
+		}
+		cus = utils.FormatSingleResult[Customer](result)
+		var mobile = SanitizeData(cus.Mobile)
+		if len(mobile) > 0 {
+			list, err = utils.GetDevicesByPhone(mobile)
+			if err != nil {
+				log.Error("Error in Getting device tokens by phone: ", err.Error())
+				return list
+			}
 		}
 	}
 	return list
@@ -237,6 +285,10 @@ func (obj PaymentOrder) QueryBuilder(params map[string]string) (string, []any) {
 	if len(params["customer_id"]) > 0 {
 		query += payment_customer_filter
 		filter = append(filter, params["customer_id"])
+	}
+	if len(params["start_date"]) > 0 && len(params["end_date"]) > 0 {
+		query += payment_date_range_filter
+		filter = append(filter, params["start_date"], params["end_date"])
 	}
 	return query, filter
 }

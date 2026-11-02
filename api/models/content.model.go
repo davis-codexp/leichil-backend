@@ -18,6 +18,9 @@ type Content struct {
 	Price         *int       `form:"price" json:"price,omitempty"`
 	ProducerID    *int       `form:"producer_id" json:"producer_id,omitempty"`
 	Thumbnail     *string    `form:"thumbnail" json:"thumbnail,omitempty"`
+	TVThumbnail   *string    `form:"tv_thumbnail" json:"tv_thumbnail,omitempty"`
+	Banner        *string    `form:"banner" json:"banner,omitempty"`
+	TitleImage    *string    `form:"title_image" json:"title_image,omitempty"`
 	Trailer       *string    `form:"trailer" json:"trailer,omitempty"`
 	Video         *string    `form:"video" json:"video,omitempty"`
 	Rating        *float32   `json:"rating,omitempty"`
@@ -102,19 +105,15 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 	var result HomeData
 	var segments []Segment
 	var content Content
-	var cca CustomerContentActivity
-	var continue_list []CustomerContentActivity
+	//var cca CustomerContentActivity
+	//var continue_list []CustomerContentActivity
 	var first_list []Content
-	var second_list []Content
+	//var second_list []Content
 	var third_list []Content
 	var first_title string
-	var second_title string
+	//var second_title string
 	var third_title string
-	var fields = []any{
-		&content.ID, &content.Name, &content.Thumbnail,
-		&content.ReleaseYear, &content.Genre, &content.Rating,
-		&content.Price, &content.Category,
-	}
+	var fields = get_home_content_fields(&content)
 
 	var first_section_query string = get_home_contents_query + content_order_filter
 	_, first_result, err := GetListData([]any{}, fields, &content, "", first_section_query, 0, 5)
@@ -124,13 +123,15 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 		first_list = utils.FormatListResult[Content](first_result)
 	}
 
-	var second_section_query string = get_trending_contents_query + cca_order_filter
-	_, second_result, err := GetListData([]any{}, fields, &content, "", second_section_query, 0, 5)
-	if err != nil {
-		log.Error("Unable to get Second List: ", err.Error())
-	} else {
-		second_list = utils.FormatListResult[Content](second_result)
-	}
+	/*
+		var second_section_query string = get_trending_contents_query + cca_order_filter
+		_, second_result, err := GetListData([]any{}, fields, &content, "", second_section_query, 0, 5)
+		if err != nil {
+			log.Error("Unable to get Second List: ", err.Error())
+		} else {
+			second_list = utils.FormatListResult[Content](second_result)
+		}
+	*/
 
 	var third_section_query string = get_home_contents_query + content_type_filter + content_order_filter
 	_, third_result, err := GetListData([]any{"SERIES"}, fields, &content, "", third_section_query, 0, 5)
@@ -140,14 +141,16 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 		third_list = utils.FormatListResult[Content](third_result)
 	}
 
-	var continue_query string = get_continue_watching_query + cca_customer_filter + cca_order_filter
-	var continue_fields = get_continue_watching_fields(&cca)
-	_, continue_result, err := GetListData([]any{token.CustomerID}, continue_fields, &cca, "", continue_query, 0, 5)
-	if err != nil {
-		log.Error("Unable to get Continue List: ", err.Error())
-	} else {
-		continue_list = utils.FormatListResult[CustomerContentActivity](continue_result)
-	}
+	/*
+		var continue_query string = get_continue_watching_query + cca_customer_filter + cca_order_filter
+		var continue_fields = get_continue_watching_fields(&cca)
+		_, continue_result, err := GetListData([]any{token.CustomerID}, continue_fields, &cca, "", continue_query, 0, 5)
+		if err != nil {
+			log.Error("Unable to get Continue List: ", err.Error())
+		} else {
+			continue_list = utils.FormatListResult[CustomerContentActivity](continue_result)
+		}
+	*/
 
 	first_title = "New Releases"
 	var first_segment = Segment{
@@ -158,14 +161,16 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 	}
 	segments = append(segments, first_segment)
 
-	second_title = "Trending"
-	var second_segment = Segment{
-		Title:       &second_title,
-		List:        &second_list,
-		ContentType: "",
-		ListType:    "trending",
-	}
-	segments = append(segments, second_segment)
+	/*
+		second_title = "Trending"
+		var second_segment = Segment{
+			Title:       &second_title,
+			List:        &second_list,
+			ContentType: "",
+			ListType:    "trending",
+		}
+		segments = append(segments, second_segment)
+	*/
 
 	third_title = "Latest Shows"
 	var third_segment = Segment{
@@ -177,7 +182,7 @@ func (obj HomeData) GetHomeList(token CustomerToken) (HomeData, error) {
 	segments = append(segments, third_segment)
 	result.Segments = &segments
 	result.Carousel = &first_list
-	result.ContinueWatching = &continue_list
+	//result.ContinueWatching = &continue_list
 	return result, nil
 }
 
@@ -198,11 +203,7 @@ func (obj Content) GetTrendingList(offset, limit int, params map[string]string) 
 }
 
 func (obj Content) GetNewList(offset, limit int, params map[string]string) (CountResult, []any, error) {
-	var fields = []any{
-		&obj.ID, &obj.Name, &obj.Thumbnail,
-		&obj.ReleaseYear, &obj.Genre, &obj.Rating,
-		&obj.Price, &obj.Category,
-	}
+	var fields = get_home_content_fields(&obj)
 	var query string = get_home_contents_query
 	var filter = []any{}
 	if len(params["content_type"]) > 0 {
@@ -217,17 +218,13 @@ func (obj HomeData) GetCustomList(token CustomerToken, content_type string) (Hom
 	var result HomeData
 	var segments []Segment
 	var content Content
-	var cca CustomerContentActivity
-	var continue_list []CustomerContentActivity
+	//var cca CustomerContentActivity
+	//var continue_list []CustomerContentActivity
 	var new_list []Content
-	var trending_list []Content
+	//var trending_list []Content
 	var first_title string
-	var second_title string
-	var fields = []any{
-		&content.ID, &content.Name, &content.Thumbnail,
-		&content.ReleaseYear, &content.Genre, &content.Rating,
-		&content.Price, &content.Category,
-	}
+	//var second_title string
+	var fields = get_home_content_fields(&content)
 
 	var new_releases_query string = get_home_contents_query + content_type_filter + content_order_filter
 	_, new_releases_result, err := GetListData([]any{strings.ToUpper(content_type)}, fields, &content, "", new_releases_query, 0, 5)
@@ -237,22 +234,24 @@ func (obj HomeData) GetCustomList(token CustomerToken, content_type string) (Hom
 		new_list = utils.FormatListResult[Content](new_releases_result)
 	}
 
-	var trending_query string = get_trending_contents_query + cca_content_type_filter + cca_order_filter
-	_, trending_result, err := GetListData([]any{strings.ToUpper(content_type)}, fields, &content, "", trending_query, 0, 5)
-	if err != nil {
-		log.Error("Unable to get Trending List: ", err.Error())
-	} else {
-		trending_list = utils.FormatListResult[Content](trending_result)
-	}
+	/*
+		var trending_query string = get_trending_contents_query + cca_content_type_filter + cca_order_filter
+		_, trending_result, err := GetListData([]any{strings.ToUpper(content_type)}, fields, &content, "", trending_query, 0, 5)
+		if err != nil {
+			log.Error("Unable to get Trending List: ", err.Error())
+		} else {
+			trending_list = utils.FormatListResult[Content](trending_result)
+		}
 
-	var continue_query string = get_continue_watching_query + cca_content_type_filter + cca_customer_filter + cca_order_filter
-	var continue_fields = get_continue_watching_fields(&cca)
-	_, continue_result, err := GetListData([]any{strings.ToUpper(content_type), token.CustomerID}, continue_fields, &cca, "", continue_query, 0, 5)
-	if err != nil {
-		log.Error("Unable to get Continue List: ", err.Error())
-	} else {
-		continue_list = utils.FormatListResult[CustomerContentActivity](continue_result)
-	}
+		var continue_query string = get_continue_watching_query + cca_content_type_filter + cca_customer_filter + cca_order_filter
+		var continue_fields = get_continue_watching_fields(&cca)
+		_, continue_result, err := GetListData([]any{strings.ToUpper(content_type), token.CustomerID}, continue_fields, &cca, "", continue_query, 0, 5)
+		if err != nil {
+			log.Error("Unable to get Continue List: ", err.Error())
+		} else {
+			continue_list = utils.FormatListResult[CustomerContentActivity](continue_result)
+		}
+	*/
 
 	first_title = "New Releases"
 	var first_segment = Segment{
@@ -263,18 +262,20 @@ func (obj HomeData) GetCustomList(token CustomerToken, content_type string) (Hom
 	}
 	segments = append(segments, first_segment)
 
-	second_title = "Trending"
-	var second_segment = Segment{
-		Title:       &second_title,
-		List:        &trending_list,
-		ContentType: content_type,
-		ListType:    "trending",
-	}
-	segments = append(segments, second_segment)
+	/*
+		second_title = "Trending"
+		var second_segment = Segment{
+			Title:       &second_title,
+			List:        &trending_list,
+			ContentType: content_type,
+			ListType:    "trending",
+		}
+		segments = append(segments, second_segment)
+	*/
 
 	result.Carousel = &new_list
 	result.Segments = &segments
-	result.ContinueWatching = &continue_list
+	//result.ContinueWatching = &continue_list
 	return result, nil
 }
 

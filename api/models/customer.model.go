@@ -95,5 +95,9 @@ func (customer Customer) QueryBuilder(params map[string]string) (string, []any) 
 		query += mobile_filter
 		filter = append(filter, params["mobile"])
 	}
+	if len(params["start_date"]) > 0 && len(params["end_date"]) > 0 {
+		query += customer_date_range_filter
+		filter = append(filter, params["start_date"], params["end_date"])
+	}
 	return query, filter
 }
