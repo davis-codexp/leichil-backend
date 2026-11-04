@@ -31,7 +31,7 @@ func get_content_fields(obj *Content) []any {
 		&obj.ReleaseYear, &obj.Synopsis, &obj.Price,
 		&obj.ProducerID, &obj.ProducerName, &obj.Thumbnail,
 		&obj.TVThumbnail, &obj.Banner, &obj.TitleImage,
-		&obj.Trailer, &obj.Video, &obj.Category, &obj.Price, &obj.Rating,
+		&obj.Trailer, &obj.Video, &obj.Category, &obj.Rating,
 		&obj.ContentType, &obj.CreatedOn, &obj.CreatedBy, &obj.CreatedByName,
 	}
 }

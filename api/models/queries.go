@@ -57,8 +57,8 @@ var order_producer_filter = " ORDER BY p.created_on DESC"
 var get_contents_query = `
 	SELECT contents.id, contents.name, genre, runtime, release_year, synopsis,
 	price, producer_id, producers.name AS producer_name,
-	thumbnail, trailer, thumbnail, banner, title_image, video, category,
-	price, rating, content_type, contents.created_on, contents.created_by,
+	thumbnail, tv_thumbnail, banner, title_image, trailer, video, category,
+	rating, content_type, contents.created_on, contents.created_by,
 	users.name AS created_by_name
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id
@@ -67,7 +67,7 @@ var get_contents_query = `
 `
 var get_content_price_query = "SELECT id, price FROM contents WHERE id = ?"
 var get_home_contents_query = `
-	SELECT contents.id, contents.name, thumbnail, title_image, banner, title_image,
+	SELECT contents.id, contents.name, thumbnail, tv_thumbnail, banner, title_image,
 	release_year, genre, rating, price, category
 	FROM contents
 	INNER JOIN producers ON producers.id = contents.producer_id

@@ -12,7 +12,8 @@ import (
 
 var content_required_fields = []string{
 	"Name", "Genre", "Runtime", "ReleaseYear", "Synopsis", "Price", "IsPublished",
-	"ProducerID", "Thumbnail", "Video", "Category", "ContentType", "ActorList",
+	"ProducerID", "Thumbnail", "TVThumbnail", "Banner", "TitleImage", "Video", "Category",
+	"ContentType", "ActorList",
 }
 
 var episode_required_fields = []string{
