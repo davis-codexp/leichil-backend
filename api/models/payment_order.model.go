@@ -40,6 +40,13 @@ type VerifyPaymentBody struct {
 	PlanID            *int    `json:"plan_id,omitempty"`
 }
 
+type PaymentQRBody struct {
+	ContentID   *int    `json:"content_id,omitempty"`
+	PlanID      *int    `json:"plan_id,omitempty"`
+	PaymentType *string `json:"payment_type,omitempty"`
+	DeviceID    *string `json:"device_id,omitempty"`
+}
+
 func (obj PaymentOrder) Get(offset, limit int, params map[string]string) (CountResult, []any, error) {
 	var fields = get_payment_order_fields(&obj)
 	var query string = get_payment_orders_query

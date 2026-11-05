@@ -45,6 +45,7 @@ func main() {
 		AllowMethods: "GET, POST, PUT, DELETE",
 	}))
 	app.Post("/api/daviswebhooksecret", func(ctx *fiber.Ctx) error { return handlers.WebhookHandler(ctx, WEBHOOK_SECRET) })
+	app.Get("/payment-qr", handlers.HandlePaymentLink)
 	var api_router fiber.Router = app.Group("/api/v1")
 	var ui_router fiber.Router = app.Group("/")
 	handlers.APIHandler(api_router)
