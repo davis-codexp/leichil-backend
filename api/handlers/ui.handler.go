@@ -10,14 +10,19 @@ import (
 
 func UIHandler(router fiber.Router) {
 	var admin_ui_routes = router.Group("/admin")
-
 	var producer_ui = router.Group("/producers")
 	var actor_ui = router.Group("/actors")
 
 	admin_ui_handler(admin_ui_routes)
-
 	producer_handler(producer_ui)
 	actor_handler(actor_ui)
+
+	router.Get("/payment-error", func(ctx *fiber.Ctx) error {
+		return Render(ctx, templates.PaymentError())
+	})
+	router.Get("/payment-success", func(ctx *fiber.Ctx) error {
+		return Render(ctx, templates.PaymentSuccess())
+	})
 }
 
 func admin_ui_handler(router fiber.Router) {

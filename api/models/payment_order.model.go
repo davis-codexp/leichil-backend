@@ -6,6 +6,7 @@ import (
 	"leichil-backend/api/utils"
 	"os"
 	"strings"
+	"time"
 
 	"crypto/hmac"
 	"crypto/sha256"
@@ -105,9 +106,15 @@ func (obj *PaymentOrder) Create(token CustomerToken, order_type string) map[stri
 		amount = SanitizeData(plan.Price) * 100
 	}
 
-	rzp_key = os.Getenv("RZP_KEY_ID")
-	rzp_secret = os.Getenv("RZP_KEY_SECRET")
-	rzp_client = razorpay.NewClient(rzp_key, rzp_secret)
+	if len(rzp_key) == 0 {
+		rzp_key = os.Getenv("RZP_KEY_ID")
+	}
+	if len(rzp_secret) == 0 {
+		rzp_secret = os.Getenv("RZP_KEY_SECRET")
+	}
+	if rzp_client == nil {
+		rzp_client = razorpay.NewClient(rzp_key, rzp_secret)
+	}
 	var data = map[string]interface{}{
 		"amount":   amount,
 		"currency": "INR",
@@ -135,7 +142,7 @@ func (obj *PaymentOrder) Create(token CustomerToken, order_type string) map[stri
 	return response
 }
 
-func (obj *VerifyPaymentBody) VerifyPayment(token CustomerToken, order_type string) bool {
+func (obj *VerifyPaymentBody) VerifyPayment() bool {
 	var flag = true
 	var status = "SUCCESS"
 	var signature_payload = SanitizeData(obj.RazorpayOrderID) + "|" + SanitizeData(obj.RazorpayPaymentID)
@@ -264,6 +271,46 @@ func get_device_tokens(customer_id int) []string {
 func (obj *PaymentOrder) Update() bool {
 	var fields = []any{obj.Status, obj.PaymentID, obj.OrderID}
 	return utils.RunUpdate(update_payment_order_query, fields)
+}
+
+func GetPaymentLink() string {
+	var link string
+	//var callback_url = os.Getenv("RZP_CALLBACK_URL")
+	if len(rzp_key) == 0 {
+		rzp_key = os.Getenv("RZP_KEY_ID")
+	}
+	if len(rzp_secret) == 0 {
+		rzp_secret = os.Getenv("RZP_KEY_SECRET")
+	}
+	if rzp_client == nil {
+		rzp_client = razorpay.NewClient(rzp_key, rzp_secret)
+	}
+	var data = map[string]interface{}{
+		"amount":         9900,
+		"currency":       "INR",
+		"accept_partial": false,
+		"description":    "Test Payment for TV",
+		"reference_id":   "order_5565",
+		"customer": map[string]interface{}{
+			"name":   "Kakashi Hatake",
+			"email":  "kakashi@konoha.com",
+			"mobile": "9090909090",
+		},
+		//"callback_url":    callback_url,
+		"callback_method": "get",
+		"expire_by":       time.Now().Add(20 * time.Minute).Unix(),
+	}
+	payment_link, err := rzp_client.PaymentLink.Create(data, nil)
+	if err != nil {
+		log.Error("Error in Generating Payment Link: ", err.Error())
+		return link
+	}
+	link, ok := payment_link["short_url"].(string)
+	if !ok || link == "" {
+		log.Error("Invalid response from Razorpay")
+		return link
+	}
+	return link
 }
 
 func (obj PaymentOrder) QueryBuilder(params map[string]string) (string, []any) {

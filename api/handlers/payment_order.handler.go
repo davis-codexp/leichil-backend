@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"leichil-backend/api/models"
+	"leichil-backend/api/templates"
 	"leichil-backend/api/utils"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -18,7 +20,7 @@ var payment_verification_required_fields = []string{"RazorpayOrderID", "Razorpay
 var payment_update_required_fields = []string{"Status", "OrderID"}
 var order_required_fields = []string{"ContentID"}
 var subscription_order_required_fields = []string{"PlanID"}
-var qr_required_fields = []string{"DeviceID", "PaymentType"}
+var qr_required_fields = []string{"DeviceID", "ContentID"}
 
 func order_handler(router fiber.Router) {
 	router.Get("/", get_payment_orders)
@@ -27,8 +29,8 @@ func order_handler(router fiber.Router) {
 func app_order_handler(router fiber.Router) {
 	router.Post("/", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "payment") })
 	router.Post("/subscriptions", func(ctx *fiber.Ctx) error { return add_payment_order(ctx, "subscription") })
-	router.Post("/verify", func(ctx *fiber.Ctx) error { return verify_payment(ctx, "payment") })
-	router.Post("/subscriptions/verify", func(ctx *fiber.Ctx) error { return verify_payment(ctx, "subscription") })
+	router.Post("/verify", verify_payment)
+	router.Post("/subscriptions/verify", verify_payment)
 	router.Put("/", update_payment)
 	router.Get("/purchases", get_customer_payment_orders)
 	router.Get("/purchases/:id", verify_customer_purchase)
@@ -89,20 +91,16 @@ func add_payment_order(ctx *fiber.Ctx, order_type string) error {
 	return utils.GetMessageResponse(message, message, status, flag, ctx)
 }
 
-func verify_payment(ctx *fiber.Ctx, order_type string) error {
+func verify_payment(ctx *fiber.Ctx) error {
 	var payment = new(models.VerifyPaymentBody)
 	var required_fields = payment_verification_required_fields
-	if order_type == "subscription" {
-		required_fields = append(required_fields, "PlanID")
-	}
 	flag, status, message := utils.ParseAndValidate(payment, required_fields, ctx)
 	if flag {
 		var response = map[string]any{
 			"success": false,
 			"message": "Payment Failed",
 		}
-		var token = ctx.Locals("customer_token").(models.CustomerToken)
-		if payment.VerifyPayment(token, order_type) {
+		if payment.VerifyPayment() {
 			response["success"] = true
 			response["message"] = "Payment Successful"
 		}
@@ -135,39 +133,24 @@ func get_payment_qr(ctx *fiber.Ctx) error {
 	var required_fields = qr_required_fields
 	flag, status, message := utils.ParseAndValidate(body, required_fields, ctx)
 	if flag {
-		var payment_type string = strings.ToUpper(models.SanitizeData(body.PaymentType))
-		if payment_type == "PURCHASE" {
-			var content_id = models.SanitizeData(body.ContentID)
-			if content_id > 0 {
-				var url string = os.Getenv("PAYMENT_URL")
-				var device_id string = models.SanitizeData(body.DeviceID)
-				var token = ctx.Locals("customer_token").(models.CustomerToken)
-				var customer_id int = models.SanitizeData(token.CustomerID)
-				var timestamp = time.Now().UnixMilli()
-				var query_params = fmt.Sprintf(`content_id=%d&customer_id=%d&device_id=%s&timestamp=%d`, content_id, customer_id, device_id, timestamp)
-				encrypted_params, err := utils.Encrypt(query_params)
-				if err != nil {
-					return utils.GetMessageResponse("", "Unable to Get Payment Link", fiber.StatusInternalServerError, false, ctx)
-				}
-				url = fmt.Sprintf(`%s?params=%s`, url, encrypted_params)
-				return gen_qrcode(url, ctx)
-			}
-			return utils.GetMessageResponse("", "MISSING CONTENT ID", fiber.StatusBadRequest, false, ctx)
-		} else if payment_type == "SUBSCRIPTION" {
-			if models.SanitizeData(body.PlanID) > 0 {
-				var url string = os.Getenv("PAYMENT_URL")
-				return gen_qrcode(url, ctx)
-			}
-			return utils.GetMessageResponse("", "MISSING PLAN ID", fiber.StatusBadRequest, false, ctx)
+		var content_id = models.SanitizeData(body.ContentID)
+		var timestamp = time.Now().Add(5 * time.Minute).UnixMilli()
+		var url string = os.Getenv("PAYMENT_URL")
+		var token = ctx.Locals("customer_token").(models.CustomerToken)
+		var customer_id int = models.SanitizeData(token.CustomerID)
+		var device_id string = models.SanitizeData(body.DeviceID)
+		var query_params = fmt.Sprintf(`content_id=%d&customer_id=%d&device_id=%s&timestamp=%d&token=%s`, content_id, customer_id, device_id, timestamp, models.SanitizeData(token.Token))
+		encrypted_params, err := utils.Encrypt(query_params)
+		if err != nil {
+			return utils.GetMessageResponse("", "Unable to Get Payment Link", fiber.StatusInternalServerError, false, ctx)
 		}
-		status = fiber.StatusBadRequest
-		flag = false
-		message = "INVALID PAYMENT TYPE"
+		url = fmt.Sprintf(`%s?params=%s`, url, encrypted_params)
+		return gen_qrcode(url, timestamp, ctx)
 	}
 	return utils.GetMessageResponse(message, message, status, flag, ctx)
 }
 
-func gen_qrcode(url string, ctx *fiber.Ctx) error {
+func gen_qrcode(url string, timestamp int64, ctx *fiber.Ctx) error {
 	png, err := qrcode.Encode(url, qrcode.Medium, 256)
 	if err != nil {
 		log.Error("Error in generating QR Code: ", err.Error())
@@ -176,19 +159,72 @@ func gen_qrcode(url string, ctx *fiber.Ctx) error {
 	var base64_str = base64.StdEncoding.EncodeToString(png)
 	var img = fmt.Sprintf("data:image/png;base64,%s", base64_str)
 	var response = map[string]any{
-		"success": true,
-		"result":  img,
+		"success":    true,
+		"result":     img,
+		"expires_at": timestamp,
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
 func HandlePaymentLink(ctx *fiber.Ctx) error {
 	var params = ctx.Query("params")
-	log.Info(params)
 	data, err := utils.Decrypt(params)
 	if err != nil {
 		log.Error("Error in Decryption: ", err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Server Error")
 	}
-	return ctx.Status(fiber.StatusOK).SendString(data)
+	query_params, err := url.ParseQuery(data)
+	if err != nil {
+		log.Error("Unable to parse decrypted query params: ", err.Error())
+		return utils.GetMessageResponse("", "Unable to genrate payment link", fiber.StatusInternalServerError, false, ctx)
+	}
+	var customer_id = utils.GetIntQueryParams(query_params.Get("customer_id"), 0)
+	var content_id = utils.GetIntQueryParams(query_params.Get("content_id"), 0)
+	var timestamp = utils.GetIntQueryParams(query_params.Get("timestamp"), 0)
+	var token_str string = query_params.Get("token")
+	var curr_timestamp = int(time.Now().UnixMilli())
+	var order_type = "payment"
+	var description string
+
+	if curr_timestamp >= timestamp {
+		log.Info("QR Expired")
+		return ctx.Status(400).SendString("QR Code is Expired")
+	}
+
+	var customer models.Customer
+	var content models.Content
+
+	customer_result, err := customer.GetById(fmt.Sprintf(`%d`, customer_id))
+	if err != nil {
+		log.Error("Error in getting Customer: ", err.Error())
+		return Render(ctx, templates.PaymentError())
+	}
+	customer = utils.FormatSingleResult[models.Customer](customer_result)
+
+	content, err = content.GetById(fmt.Sprintf(`%d`, content_id), 1)
+	if err != nil {
+		log.Error("Error in getting Content: ", err.Error())
+		return Render(ctx, templates.PaymentError())
+	}
+
+	if strings.ToUpper(models.SanitizeData(content.Category)) == "SUBSCRIPTION" {
+		order_type = "subscription"
+		description = "SUBSCRIPTION"
+	}
+
+	var order = new(models.PaymentOrder)
+	order.ContentID = content.ID
+	var token = models.CustomerToken{CustomerID: customer.ID}
+	var result = order.Create(token, order_type)
+	order_id, _ := result["order_id"].(string)
+	amount, _ := result["amount"].(int)
+	var api_key = os.Getenv("RZP_KEY_ID")
+	return Render(
+		ctx,
+		templates.Checkout(
+			order_id, api_key,
+			models.SanitizeData(customer.Name),
+			models.SanitizeData(customer.Mobile),
+			description, token_str, amount,
+		))
 }

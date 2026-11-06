@@ -1,0 +1,83 @@
+package templates
+
+templ Checkout(order_id, key, name, contact, description, auth_token string, amount int) {
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Complete Payment - Leichil TV</title>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    </head>
+    <body>
+        <div>
+            <h2>Complete Your Payment</h2>
+            <input type="hidden" id="order_id" value={order_id} />
+            <input type="hidden" id="key" value={key} />
+            <input type="hidden" id="name" value={name} />
+            <input type="hidden" id="contact" value={contact} />
+            <input type="hidden" id="description" value={description} />
+            <input type="hidden" id="amount" value={amount} />
+            <input type="hidden" id="auth_token" value={auth_token} />
+            <button id="pay-btn" style="padding: 10px 20px; font-size: 16px; background: #3399cc; color: white; border: none; cursor: pointer;">
+                Pay ₹{amount/100}
+            </button>
+        </div>
+
+        <script>
+            document.getElementById('pay-btn').onclick = function (e) {
+                var options = {
+                    "key": document.getElementById("key").value,
+                    "amount": document.getElementById("amount").value,
+                    "currency": "INR",
+                    "name": "IRONBLADE INNOVATION LABS PRIVATE LIMITED",
+                    "description": document.getElementById("description").value,
+                    "order_id": document.getElementById("order_id").value,
+                    "handler": async function (response){
+                        const token = document.getElementById("auth_token").value;
+                        const payload = {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature 
+                        };
+                        const url = "http://127.0.0.1:9999/api/v1/app/orders/verify";
+                        try {
+                            const response = await fetch(url, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": token
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                            if (!response.ok) {
+                                console.log("Verification API Error");
+                                window.location.replace("http://127.0.0.1:9999/payment-error");
+                            } else {
+                                const result = await response.json();
+                                if (result?.success) window.location.replace("http://127.0.0.1:9999/payment-success");
+                                else {
+                                    console.log(result);
+                                    window.location.replace("http://127.0.0.1:9999/payment-error");
+                                }
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert("Unable to verify payment");
+                        }
+                    },
+                    "prefill": {
+                        "name": document.getElementById("name").value,
+                        "contact": document.getElementById("contact").value
+                    },
+                    "theme": {
+                        "color": "#3399cc"
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+                e.preventDefault();
+            }
+        </script>
+    </body>
+    </html>
+}
