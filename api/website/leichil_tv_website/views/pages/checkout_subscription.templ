@@ -1,0 +1,278 @@
+
+package pages
+
+import "leichil_tv_website/views/layouts"
+
+templ SubscriptionCheckout(
+    planID string,
+    planName string,
+    price string,
+    duration string,
+) {
+    @layouts.Base("Subscription Checkout | Leichil TV") {
+
+        <main class="checkout-page">
+
+            <div class="checkout-container">
+
+                <!-- HEADER -->
+                <header class="checkout-header">
+
+                    <a href="/" class="checkout-back">
+                        <svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        <span>Back to Leichil TV</span>
+                    </a>
+
+                    <h1>Subscribe to Leichil TV</h1>
+
+                    <p>
+                        Unlock unlimited entertainment with Leichil TV.
+                    </p>
+
+                </header>
+
+                <div class="subscription-checkout-grid">
+
+                    <!-- LEFT COLUMN -->
+                    <section class="checkout-main">
+
+                        <div class="checkout-card">
+
+                            <!-- PLAN HEADER -->
+                            <div class="checkout-card-header">
+
+                                <div>
+                                    <span class="checkout-label">
+                                        YOUR SELECTED PLAN
+                                    </span>
+
+                                    <h2>{ planName }</h2>
+                                </div>
+
+                                <span class="checkout-badge subscription-badge">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/>
+                                    </svg>
+                                    SUBSCRIPTION
+                                </span>
+
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="subscription-price-display">
+                                <strong>₹{ price }</strong>
+                                <span>/ { duration }</span>
+                            </div>
+
+                            <div class="checkout-divider"></div>
+
+                            <!-- BENEFITS -->
+                            <h2 class="subscription-features-heading">
+                                Why Subscribe to Leichil TV?
+                            </h2>
+
+                            <!-- UNLIMITED MOVIES -->
+                            <div class="subscription-feature">
+
+                                <div class="subscription-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                        <path d="m7 3 4 5-4 5"/>
+                                        <path d="m15 3 4 5-4 5"/>
+                                        <path d="M3 12h18"/>
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h3>Unlimited Movies</h3>
+                                    <p>
+                                        Watch unlimited movies anytime except Premium Contents.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <!-- OFFER -->
+                            <div class="subscription-feature">
+
+                                <div class="subscription-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="3" y="8" width="18" height="13" rx="2"/>
+                                        <path d="M12 8v13"/>
+                                        <path d="M3 12h18"/>
+                                        <path d="M12 8H7.5a2.5 2.5 0 1 1 2.5-2.5V8Z"/>
+                                        <path d="M12 8h4.5A2.5 2.5 0 1 0 14 5.5V8Z"/>
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h3>Offer</h3>
+                                    <p>
+                                        Buy any Premium Content to enjoy
+                                        1 month Basic Subscription absolutely FREE!
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <!-- AD FREE -->
+                            <div class="subscription-feature">
+
+                                <div class="subscription-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                        <path d="M8 21h8"/>
+                                        <path d="M12 17v4"/>
+                                        <path d="m9 8 6 5"/>
+                                        <path d="m15 8-6 5"/>
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h3>ADs Free</h3>
+                                    <p>
+                                        Access Leichil TV contents without
+                                        the annoying Ad interruptions.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <!-- HD STREAMING -->
+                            <div class="subscription-feature">
+
+                                <div class="subscription-feature-icon">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                        <path d="M7 10v4"/>
+                                        <path d="M10 10v4"/>
+                                        <path d="M14 10h3"/>
+                                        <path d="M14 14h3"/>
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h3>HD Streaming</h3>
+                                    <p>
+                                        Enjoy crystal-clear streaming quality.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- RIGHT COLUMN -->
+                    <aside class="checkout-sidebar">
+
+                        <div class="checkout-card">
+
+                            <h2>Order Summary</h2>
+
+                            <div class="subscription-order-plan">
+                                <span>Selected Plan</span>
+                                <strong>{ planName }</strong>
+                            </div>
+
+                            <div class="checkout-price-row">
+                                <span>Duration</span>
+                                <strong>{ duration }</strong>
+                            </div>
+
+                            <div class="checkout-price-row">
+                                <span>Subscription Price</span>
+                                <strong>₹{ price }</strong>
+                            </div>
+
+                            <div class="checkout-divider"></div>
+
+                            <div class="checkout-total-row">
+                                <span>Total Payable</span>
+                                <strong>₹{ price }</strong>
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="/checkout/subscription/pay"
+                                id="subscription-checkout-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="plan_id"
+                                    value={ planID }
+                                />
+
+                                <button
+                                    type="submit"
+                                    class="checkout-pay-button"
+                                >
+                                    Pay ₹{ price } Now
+
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M5 12h14"/>
+                                        <path d="m12 5 7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </form>
+
+                            <div class="checkout-secure">
+                                <svg viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+
+                                Secure payment powered by Razorpay
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+                <footer class="checkout-footer">
+                    <p>© Leichil TV. All rights reserved.</p>
+                </footer>
+
+            </div>
+
+        </main>
+    }
+}
