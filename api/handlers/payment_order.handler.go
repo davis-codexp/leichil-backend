@@ -176,7 +176,7 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 	query_params, err := url.ParseQuery(data)
 	if err != nil {
 		log.Error("Unable to parse decrypted query params: ", err.Error())
-		return utils.GetMessageResponse("", "Unable to genrate payment link", fiber.StatusInternalServerError, false, ctx)
+		return Render(ctx, templates.PaymentError())
 	}
 	var customer_id = utils.GetIntQueryParams(query_params.Get("customer_id"), 0)
 	var content_id = utils.GetIntQueryParams(query_params.Get("content_id"), 0)
@@ -187,8 +187,8 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 	var description string
 
 	if curr_timestamp >= timestamp {
-		log.Info("QR Expired")
-		return ctx.Status(400).SendString("QR Code is Expired")
+		log.Info("Link Expired")
+		return ctx.Status(400).SendString("Link is Expired")
 	}
 
 	var customer models.Customer
@@ -207,24 +207,54 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 		return Render(ctx, templates.PaymentError())
 	}
 
+	var token = models.CustomerToken{CustomerID: customer.ID}
+	var order = new(models.PaymentOrder)
+	var plan models.SubscriptionPlan
+
 	if strings.ToUpper(models.SanitizeData(content.Category)) == "SUBSCRIPTION" {
 		order_type = "subscription"
 		description = "SUBSCRIPTION"
+		_, plan_result, err := plan.Get(0, 1, map[string]string{})
+		if err != nil || len(plan_result) == 0 {
+			log.Error("Error in getting Subscription Plans: ", err.Error())
+			return Render(ctx, templates.PaymentError())
+		}
+		plan = utils.FormatSingleResult[models.SubscriptionPlan](plan_result)
+		order.PlanID = plan.ID
+	} else {
+		description = fmt.Sprintf("Payment for %s", models.SanitizeData(content.Name))
+		order.ContentID = content.ID
 	}
 
-	var order = new(models.PaymentOrder)
-	order.ContentID = content.ID
-	var token = models.CustomerToken{CustomerID: customer.ID}
 	var result = order.Create(token, order_type)
 	order_id, _ := result["order_id"].(string)
 	amount, _ := result["amount"].(int)
 	var api_key = os.Getenv("RZP_KEY_ID")
+
+	if order_type == "subscription" {
+		return Render(
+			ctx,
+			templates.CheckoutSubscription(
+				order_id, api_key,
+				models.SanitizeData(customer.Name),
+				models.SanitizeData(customer.Mobile),
+				models.SanitizeData(plan.Name),
+				description,
+				token_str,
+				amount,
+				fmt.Sprintf("%d Month", models.SanitizeData(plan.DurationMonths)),
+			),
+		)
+	}
 	return Render(
 		ctx,
-		templates.Checkout(
+		templates.PremiumCheckout(
 			order_id, api_key,
 			models.SanitizeData(customer.Name),
 			models.SanitizeData(customer.Mobile),
+			models.SanitizeData(content.Name),
+			models.SanitizeData(content.Thumbnail),
 			description, token_str, amount,
-		))
+		),
+	)
 }
