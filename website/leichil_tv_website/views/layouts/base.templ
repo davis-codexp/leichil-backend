@@ -1,0 +1,30 @@
+package layouts
+
+templ Base(title string) {
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{ title }</title>
+    <meta name="description" content="Watch premium movies, series and dramas on Leichil TV." />
+    <meta name="theme-color" content="#0B1118" />
+    <link rel="icon" href="/static/images/logo/leichil_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/checkout.css" />
+    <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+</head>
+
+<body>
+    { children... }
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
+}

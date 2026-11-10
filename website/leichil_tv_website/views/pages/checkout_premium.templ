@@ -1,0 +1,285 @@
+package pages
+
+import "leichil_tv_website/views/layouts"
+
+templ PremiumCheckout(
+contentID string,
+contentName string,
+contentImage string,
+price string,
+customerName string,
+phone string,
+) {
+@layouts.Base("Premium Checkout | Leichil TV") {
+<main class="checkout-page">
+    <div class="checkout-container">
+
+        <!-- HEADER -->
+        <header class="checkout-header">
+            <a href="/" class="checkout-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M19 12H5" />
+                    <path d="m12 19-7-7 7-7" />
+                </svg>
+                <span>Back to Leichil TV</span>
+            </a>
+
+            <h1>Complete Your Purchase</h1>
+            <p>
+                You're just one step away from enjoying your favourite content.
+            </p>
+        </header>
+
+        <div class="checkout-grid">
+
+            <!-- LEFT COLUMN -->
+            <section class="checkout-main">
+
+                <!-- CONTENT DETAILS -->
+                <div class="checkout-card">
+
+                    <div class="checkout-card-header">
+                        <h2>Order Summary</h2>
+
+                        <span class="checkout-badge premium-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+                            </svg>
+                            PREMIUM
+                        </span>
+                    </div>
+
+                    <div class="premium-content-details">
+
+                        <img src={ contentImage } alt={ contentName } class="premium-content-poster" />
+
+                        <div class="premium-content-info">
+
+                            <span class="checkout-label">
+                                PREMIUM CONTENT
+                            </span>
+
+                            <h3>{ contentName }</h3>
+
+                            <div class="premium-content-price">
+                                ₹{ price }
+                            </div>
+
+                            <p>
+                                Lifetime access to purchased content
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- CUSTOMER DETAILS -->
+                <div class="checkout-card">
+
+                    <div class="checkout-card-header">
+                        <h2>Customer Details</h2>
+
+                        <span class="checkout-icon-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M5 21a7 7 0 0 1 14 0" />
+                            </svg>
+                        </span>
+                    </div>
+
+                    <div class="checkout-customer-details">
+
+                        <div class="checkout-customer-item">
+
+                            <div class="checkout-customer-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="8" r="4" />
+                                    <path d="M5 21a7 7 0 0 1 14 0" />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <span>Full Name</span>
+                                <strong>{ customerName }</strong>
+                            </div>
+
+                        </div>
+
+                        <div class="checkout-customer-item">
+
+                            <div class="checkout-customer-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" />
+                                    <path d="M12 18h.01" />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <span>Phone Number</span>
+                                <strong>{ phone }</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="checkout-account-note">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+
+                        Your details are securely linked to your Leichil TV account.
+                    </div>
+
+                </div>
+
+                <!-- FREE SUBSCRIPTION OFFER -->
+                // <div class="checkout-card checkout-gift-card">
+
+                    // <div class="checkout-gift-icon">
+                        // <svg viewBox="0 0 24 24" fill="none" // stroke="currentColor" // stroke-width="1.7" //
+                            // stroke-linecap="round" // stroke-linejoin="round">
+                            //
+                        //     <rect x="3" y="8" width="18" height="13" rx="2" />
+                        //     //
+                        //     <path d="M12 8v13" />
+                        //     //
+                        //     <path d="M3 12h18" />
+                        //     //
+                        //     <path d="M12 8H7.5a2.5 2.5 0 1 1 2.5-2.5V8Z" />
+                        //     //
+                        //     <path d="M12 8h4.5A2.5 2.5 0 1 0 14 5.5V8Z" />
+                        //     //
+                        // </svg>
+                        // </div>
+
+                    // <div class="checkout-gift-content">
+
+                        // <span class="checkout-label">
+                            // EXCLUSIVE OFFER
+                            // </span>
+
+                        // <h3>
+                            // Get 1 Month Basic Subscription FREE!
+                            // </h3>
+
+                        // <p>
+                            // Purchase any Premium Content and enjoy
+                            // one month of Basic Subscription absolutely free.
+                            // </p>
+
+                        // <span class="checkout-free-tag">
+                            // FREE · 1 MONTH
+                            // </span>
+
+                        // </div>
+
+                    // </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN -->
+            <aside class="checkout-sidebar">
+
+                <div class="checkout-card">
+
+                    <h2>Payment Details</h2>
+
+                    <div class="checkout-price-row">
+                        <span>Content Price</span>
+                        <strong>₹{ price }</strong>
+                    </div>
+
+                    <!-- FREE SUBSCRIPTION OFFER -->
+                    <div class="checkout-gift-card">
+
+                        <div class="checkout-gift-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="8" width="18" height="13" rx="2" />
+                                <path d="M12 8v13" />
+                                <path d="M3 12h18" />
+                                <path d="M12 8H7.5a2.5 2.5 0 1 1 2.5-2.5V8Z" />
+                                <path d="M12 8h4.5A2.5 2.5 0 1 0 14 5.5V8Z" />
+                            </svg>
+                        </div>
+
+                        <div class="checkout-gift-content">
+
+                            <span class="checkout-label">EXCLUSIVE OFFER</span>
+
+                            <h3>1 Month Basic Subscription FREE!</h3>
+
+                            <p>
+                                Purchase any Premium Content and enjoy
+                                one month of Basic Subscription absolutely free.
+                            </p>
+
+                            <span class="checkout-free-tag">
+                                FREE · 1 MONTH
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="checkout-price-row">
+                        <span>Basic Subscription</span>
+                        <strong class="free-price">FREE</strong>
+                    </div>
+
+                    <div class="checkout-divider"></div>
+
+                    <div class="checkout-total-row">
+                        <span>Total Payable</span>
+                        <strong>₹{ price }</strong>
+                    </div>
+
+                    <form method="POST" action="/checkout/premium/pay" id="premium-checkout-form">
+                        <input type="hidden" name="content_id" value={ contentID } />
+
+                        <button type="submit" class="checkout-pay-button">
+                            Pay ₹{ price } Now
+
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <div class="checkout-secure">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+
+                        Secure payment powered by Razorpay
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+        <footer class="checkout-footer">
+            <p>© Leichil TV. All rights reserved.</p>
+        </footer>
+
+    </div>
+</main>
+}
+}

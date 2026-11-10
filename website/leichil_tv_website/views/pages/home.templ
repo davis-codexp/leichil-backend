@@ -1,0 +1,30 @@
+package pages
+
+import (
+    "leichil_tv_website/views/components"
+    "leichil_tv_website/views/layouts"
+)
+
+templ Home() {
+    @layouts.Base("Leichil TV") {
+
+        @components.Navbar()
+
+        <main>
+
+            @components.Hero()
+
+            @components.Plans()
+
+            @components.Services()
+
+            @components.Download()
+
+        </main>
+
+        @components.Footer()
+
+        @components.WhatsAppFloat()
+
+    }
+}

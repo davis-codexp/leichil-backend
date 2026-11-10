@@ -1,0 +1,731 @@
+
+/* =========================================
+   LEICHIL TV - CHECKOUT
+   Cinematic Amber Theme
+========================================= */
+
+/* MAIN PAGE */
+
+.checkout-page {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text-primary);
+    padding: 25px 20px 30px;
+    font-family: 'Inter', sans-serif;
+}
+
+.checkout-container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.checkout-header {
+    margin-bottom: 24px;
+}
+
+.checkout-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.checkout-back svg {
+    width: 17px;
+    height: 17px;
+    transition: transform var(--transition-fast);
+}
+
+.checkout-back:hover {
+    background: var(--accent-muted);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateX(-2px);
+}
+
+.checkout-back:hover svg {
+    transform: translateX(-3px);
+}
+
+.checkout-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0 0 10px;
+}
+
+.checkout-header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* =========================================
+   GRID LAYOUT
+========================================= */
+
+.checkout-grid,
+.subscription-checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, .85fr);
+    gap: 25px;
+    align-items: start;
+    margin-top: 0;
+}
+
+.checkout-main,
+.checkout-sidebar {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    align-self: start;
+}
+
+.checkout-main {
+    display: block;
+    align-content: start;
+}
+
+.checkout-sidebar {
+    display: block;
+    position: sticky;
+    top: 25px;
+}
+
+/* Ensure first cards align */
+
+.checkout-grid > .checkout-main > .checkout-card:first-child,
+.checkout-grid > .checkout-sidebar > .checkout-card:first-child,
+.subscription-checkout-grid > .checkout-main > .checkout-card:first-child,
+.subscription-checkout-grid > .checkout-sidebar > .checkout-card:first-child {
+    margin-top: 0;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.checkout-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 30px var(--shadow);
+}
+
+.checkout-card h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.checkout-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.checkout-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    margin-bottom: 8px;
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.checkout-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.checkout-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.premium-badge,
+.subscription-badge {
+    background: var(--accent-muted);
+    color: var(--accent);
+    border: 1px solid rgba(255, 181, 71, .3);
+}
+
+/* =========================================
+   PREMIUM CONTENT
+========================================= */
+
+.premium-content-details {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.premium-content-poster {
+    width: 135px;
+    height: 185px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.premium-content-info {
+    min-width: 0;
+}
+
+.premium-content-info h3 {
+    font-size: 23px;
+    font-weight: 750;
+    line-height: 1.4;
+    margin: 0 0 12px;
+}
+
+.premium-content-price {
+    font-size: 27px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.premium-content-info p {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* =========================================
+   CUSTOMER DETAILS
+========================================= */
+
+.checkout-customer-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.checkout-customer-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+}
+
+.checkout-customer-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-muted);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+}
+
+.checkout-customer-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.checkout-customer-item div:last-child {
+    min-width: 0;
+}
+
+.checkout-customer-item span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+
+.checkout-customer-item strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.checkout-icon-badge {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-muted);
+    color: var(--accent);
+    border-radius: var(--radius-sm);
+}
+
+.checkout-icon-badge svg {
+    width: 22px;
+    height: 22px;
+}
+
+.checkout-account-note {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.checkout-account-note svg {
+    width: 17px;
+    height: 17px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+/* =========================================
+   FREE SUBSCRIPTION OFFER
+========================================= */
+
+.checkout-gift-card {
+    display: flex;
+    padding: 20px 18px;
+    margin-top: 20px;
+    align-items: flex-start;
+    gap: 18px;
+    background: linear-gradient(
+        135deg,
+        var(--accent-muted),
+        var(--card) 75%
+    );
+    border-color: rgba(255, 181, 71, .3);
+}
+
+.checkout-gift-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-muted);
+    border: 1px solid rgba(255, 181, 71, .3);
+    color: var(--accent);
+    border-radius: var(--radius-md);
+}
+
+.checkout-gift-icon svg {
+    width: 27px;
+    height: 27px;
+}
+
+.checkout-gift-content h3 {
+    color: var(--accent);
+    font-size: 17px;
+    line-height: 1.5;
+    margin: 0 0 8px;
+}
+
+.checkout-gift-content p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0 0 13px;
+}
+
+.checkout-free-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    background: var(--accent-muted);
+    border: 1px solid rgba(255, 181, 71, .3);
+    border-radius: var(--radius-full);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   PAYMENT DETAILS
+========================================= */
+
+.checkout-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 23px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.checkout-price-row strong {
+    color: var(--text-primary);
+    font-weight: 650;
+}
+
+.free-price {
+    color: var(--accent) !important;
+}
+
+.checkout-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 25px 0;
+}
+
+.checkout-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.checkout-total-row strong {
+    color: var(--accent);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+/* =========================================
+   PAYMENT BUTTON
+========================================= */
+
+.checkout-pay-button {
+    width: 100%;
+    min-height: 54px;
+    margin-top: 28px;
+    padding: 0 20px;
+    background: var(--button-primary);
+    color: var(--button-primary-text);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    transition: var(--transition);
+}
+
+.checkout-pay-button svg {
+    width: 19px;
+    height: 19px;
+    transition: transform var(--transition-fast);
+}
+
+.checkout-pay-button:hover {
+    background: var(--accent);
+    color: #111821;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.checkout-pay-button:hover svg {
+    transform: translateX(4px);
+}
+
+.checkout-pay-button:active {
+    transform: translateY(0);
+}
+
+/* =========================================
+   SECURE PAYMENT
+========================================= */
+
+.checkout-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-top: 20px;
+}
+
+.checkout-secure svg {
+    width: 15px;
+    height: 15px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+/* =========================================
+   SUBSCRIPTION PRICE
+========================================= */
+
+.subscription-price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 25px 0;
+}
+
+.subscription-price-display strong {
+    font-size: 36px;
+    font-weight: 850;
+    color: var(--accent);
+}
+
+.subscription-price-display span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.subscription-features-heading {
+    margin-bottom: 28px !important;
+    font-size: 23px !important;
+    letter-spacing: -.5px;
+}
+
+/* =========================================
+   SUBSCRIPTION FEATURES
+========================================= */
+
+.subscription-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 17px;
+    margin-bottom: 26px;
+}
+
+.subscription-feature:last-child {
+    margin-bottom: 5px;
+}
+
+.subscription-feature-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-muted);
+    border: 1px solid rgba(255, 181, 71, .25);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    transition: var(--transition);
+}
+
+.subscription-feature-icon svg {
+    width: 23px;
+    height: 23px;
+}
+
+.subscription-feature:hover .subscription-feature-icon {
+    background: var(--accent);
+    color: #111821;
+    border-color: var(--accent);
+}
+
+.subscription-feature h3 {
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 700;
+    margin: 2px 0 7px;
+}
+
+.subscription-feature p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* =========================================
+   SUBSCRIPTION ORDER SUMMARY
+========================================= */
+
+.subscription-order-plan {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 25px;
+}
+
+.subscription-order-plan span {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.subscription-order-plan strong {
+    color: var(--text-primary);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.checkout-footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* =========================================
+   TABLET RESPONSIVE
+========================================= */
+
+@media (max-width: 850px) {
+
+    .checkout-grid,
+    .subscription-checkout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-sidebar {
+        position: static;
+    }
+
+}
+
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
+@media (max-width: 550px) {
+
+    .checkout-page {
+        padding: 18px 14px 25px;
+    }
+
+    .checkout-header {
+        margin-bottom: 20px;
+    }
+
+    .checkout-back {
+        padding: 9px 13px;
+        font-size: 12px;
+        margin-bottom: 17px;
+    }
+
+    .checkout-header h1 {
+        font-size: 25px;
+    }
+
+    .checkout-header p {
+        font-size: 13px;
+    }
+
+    .checkout-card {
+        padding: 20px 17px;
+        border-radius: var(--radius-md);
+    }
+
+    .premium-content-details {
+        gap: 15px;
+    }
+
+    .premium-content-poster {
+        width: 105px;
+        height: 150px;
+    }
+
+    .premium-content-info h3 {
+        font-size: 17px;
+    }
+
+    .premium-content-price {
+        font-size: 22px;
+    }
+
+    .checkout-card-header {
+        flex-wrap: wrap;
+    }
+
+    .checkout-customer-details {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-gift-card {
+        gap: 13px;
+    }
+
+    .checkout-gift-icon {
+        width: 43px;
+        height: 43px;
+    }
+
+    .checkout-gift-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .checkout-gift-content h3 {
+        font-size: 15px;
+    }
+
+    .subscription-features-heading {
+        font-size: 20px !important;
+    }
+
+    .subscription-feature {
+        gap: 13px;
+    }
+
+    .subscription-feature-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .subscription-feature-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .subscription-price-display strong {
+        font-size: 31px;
+    }
+
+    .checkout-total-row strong {
+        font-size: 23px;
+    }
+
+}
