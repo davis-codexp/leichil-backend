@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"leichil-backend/api/models"
 	"leichil-backend/api/utils"
 
@@ -14,6 +15,7 @@ func AuthHandler(router fiber.Router) {
 	router.Post("/otp/verify", verify_customer_otp)
 	router.Post("/customer/logout", authenticate_customer, customer_logout)
 	router.Post("/devices/mobile", add_push_token)
+	router.Post("/delete", authenticate_customer, delete_account)
 }
 
 func user_login(ctx *fiber.Ctx) error {
@@ -107,6 +109,21 @@ func add_push_token(ctx *fiber.Ctx) error {
 			status = fiber.StatusInternalServerError
 			message = "Unable to save device token"
 		}
+	}
+	return utils.GetMessageResponse(message, message, status, flag, ctx)
+}
+
+func delete_account(ctx *fiber.Ctx) error {
+	var customer models.Customer
+	var token = ctx.Locals("customer_token").(models.CustomerToken)
+	var id string = fmt.Sprintf(`%d`, models.SanitizeData(token.CustomerID))
+	var flag = false
+	var message = "Unable to delete acccount"
+	var status int = fiber.StatusInternalServerError
+	if customer.Delete(id) {
+		flag = true
+		message = "Account deleted"
+		status = fiber.StatusOK
 	}
 	return utils.GetMessageResponse(message, message, status, flag, ctx)
 }

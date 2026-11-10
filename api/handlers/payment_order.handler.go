@@ -68,6 +68,7 @@ func verify_customer_purchase(ctx *fiber.Ctx) error {
 	var flag = payment.VerifyCustomerPurchase(token, ctx.Params("id"))
 	var response = map[string]any{
 		"success": flag,
+		"message": "You do not have access to this content. Please visit our website for more details.",
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }

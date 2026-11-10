@@ -144,7 +144,7 @@ func (obj *PaymentOrder) Create(token CustomerToken, order_type string) map[stri
 
 func (obj *VerifyPaymentBody) VerifyPayment() bool {
 	var flag = true
-	var status = "SUCCESS"
+	//var status = "SUCCESS"
 	var signature_payload = SanitizeData(obj.RazorpayOrderID) + "|" + SanitizeData(obj.RazorpayPaymentID)
 	log.Info("RAZORPAY ORDER ID: ", SanitizeData(obj.RazorpayOrderID))
 	log.Info("RAZORPAY PAYMENT ID: ", SanitizeData(obj.RazorpayPaymentID))
@@ -153,11 +153,11 @@ func (obj *VerifyPaymentBody) VerifyPayment() bool {
 	var signature = hex.EncodeToString(h.Sum(nil))
 	if signature != SanitizeData(obj.RazorpaySignature) {
 		log.Info("Invalid transaction signature: ", signature, SanitizeData(obj.RazorpaySignature))
-		status = "FAILED"
+		//status = "FAILED"
 		flag = false
 	}
-	var fields = []any{status, obj.RazorpayPaymentID, obj.RazorpayOrderID}
-	utils.RunUpdate(update_payment_order_query, fields)
+	//var fields = []any{status, obj.RazorpayPaymentID, obj.RazorpayOrderID}
+	//utils.RunUpdate(update_payment_order_query, fields)
 	return flag
 }
 

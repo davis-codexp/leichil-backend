@@ -148,7 +148,12 @@ func get_subscription_by_id(ctx *fiber.Ctx) error {
 func verify_customer_subscription(ctx *fiber.Ctx) error {
 	var subscription models.Subscription
 	result, err := subscription.GetCustomerSubscription(ctx.Locals("customer_token").(models.CustomerToken))
-	return utils.GetSingleResponse(ctx, result, "Unable to get Customer Subscription", err)
+	var message = "You do not have access to this content. Please visit our website for more details"
+	if err != nil || len(result) == 0 {
+		return utils.GetMessageResponse(message, message, fiber.StatusInternalServerError, false, ctx)
+	}
+	message = "Subscription Verified"
+	return utils.GetMessageResponse(message, message, fiber.StatusOK, true, ctx)
 }
 
 func add_subscription(ctx *fiber.Ctx) error {
