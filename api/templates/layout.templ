@@ -1,6 +1,6 @@
 package templates
 
-templ Base(title string) {
+templ Base(title string, comp templ.Component) {
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -22,7 +22,9 @@ templ Base(title string) {
         </head>
 
         <body>
-            { children... }
+            <main id="main-content">
+                @comp
+            </main>
             <script src="/static/js/app.js"></script>
         </body>
 

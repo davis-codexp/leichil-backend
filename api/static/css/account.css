@@ -1,0 +1,415 @@
+
+.account-page {
+    min-height: 100vh;
+    width: 100%;
+    padding: 48px 5%;
+    background: var(--background, #0B1118);
+    color: var(--text-primary, #F4F7FA);
+}
+
+.account-container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.account-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border, #2A3746);
+}
+
+.account-eyebrow,
+.account-section-label {
+    display: block;
+    color: var(--accent, #FFB547);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    margin-bottom: 9px;
+}
+
+.account-header h1 {
+    font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 0 0 10px;
+}
+
+.account-header p,
+.account-section-description {
+    color: var(--text-secondary, #A7B4C2);
+    margin: 0;
+    font-size: 14px;
+}
+
+.account-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-browse-btn,
+.account-logout-btn,
+.account-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 43px;
+    padding: 0 19px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.account-browse-btn {
+    background: var(--accent, #FFB547);
+    color: #151515;
+}
+
+.account-logout-btn {
+    background: var(--surface, #17212C);
+    border: 1px solid var(--border, #2A3746);
+    color: var(--text-primary, #F4F7FA);
+}
+
+.account-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border, #2A3746);
+}
+
+.account-avatar {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 181, 71, .14);
+    border: 1px solid rgba(255, 181, 71, .35);
+    color: var(--accent, #FFB547);
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.account-profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.account-profile-info h2 {
+    margin: 0 0 5px;
+    font-size: 21px;
+}
+
+.account-profile-info p {
+    margin: 0;
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 14px;
+}
+
+.account-edit-btn {
+    background: var(--surface, #17212C);
+    border: 1px solid var(--border, #2A3746);
+    color: var(--text-primary, #F4F7FA);
+}
+
+.account-section {
+    padding: 36px 0;
+    border-bottom: 1px solid var(--border, #2A3746);
+}
+
+.account-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.account-section-heading h2 {
+    margin: 0 0 7px;
+    font-size: 23px;
+}
+
+.account-status-badge,
+.account-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    padding: 8px 14px;
+    background: var(--surface, #17212C);
+    border: 1px solid var(--border, #2A3746);
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.subscription-panel {
+    background: linear-gradient(120deg, #192633, #111A24);
+    border: 1px solid var(--border, #2A3746);
+    border-radius: 14px;
+    padding: 26px;
+}
+
+.subscription-main {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.subscription-icon,
+.account-info-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(255, 181, 71, .12);
+    color: var(--accent, #FFB547);
+}
+
+.subscription-icon svg,
+.account-info-icon svg,
+.account-empty-icon svg {
+    width: 23px;
+    height: 23px;
+}
+
+.subscription-main h3 {
+    margin: 0 0 6px;
+    font-size: 20px;
+}
+
+.subscription-main p {
+    margin: 0;
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 13px;
+}
+
+.subscription-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 24px 0;
+    margin-top: 24px;
+    border-top: 1px solid var(--border, #2A3746);
+    border-bottom: 1px solid var(--border, #2A3746);
+}
+
+.subscription-detail span {
+    display: block;
+    color: var(--text-muted, #718095);
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.subscription-detail strong {
+    font-size: 16px;
+}
+
+.subscription-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-top: 22px;
+}
+
+.subscription-action strong {
+    font-size: 14px;
+}
+
+.subscription-action p {
+    margin: 6px 0 0;
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 13px;
+}
+
+.subscription-action a,
+.account-empty-state a {
+    color: var(--accent, #FFB547);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.account-movie-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.account-empty-state {
+    grid-column: 1 / -1;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    border: 1px dashed var(--border, #2A3746);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .015);
+}
+
+.account-empty-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    color: var(--accent, #FFB547);
+    background: rgba(255, 181, 71, .1);
+    margin-bottom: 14px;
+}
+
+.account-empty-state h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+}
+
+.account-empty-state p {
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 13px;
+    margin: 0 0 16px;
+}
+
+.account-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 32px 0;
+}
+
+.account-info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid var(--border, #2A3746);
+    background: var(--surface, #17212C);
+    text-decoration: none;
+    color: var(--text-primary, #F4F7FA);
+    transition: border-color .2s, transform .2s;
+}
+
+.account-info-card:hover {
+    border-color: var(--accent, #FFB547);
+    transform: translateY(-2px);
+}
+
+.account-info-card > div:nth-child(2) {
+    flex: 1;
+}
+
+.account-info-card h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.account-info-card p {
+    margin: 0;
+    color: var(--text-secondary, #A7B4C2);
+    font-size: 12px;
+}
+
+.account-card-arrow {
+    color: var(--accent, #FFB547);
+    font-size: 20px;
+}
+
+.account-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid var(--border, #2A3746);
+    color: var(--text-muted, #718095);
+    font-size: 12px;
+}
+
+.account-footer a {
+    color: var(--text-secondary, #A7B4C2);
+    text-decoration: none;
+}
+
+@media (max-width: 1000px) {
+    .account-movie-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .account-page {
+        padding: 28px 18px;
+    }
+
+    .account-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-header-actions {
+        width: 100%;
+    }
+
+    .account-header-actions > * {
+        flex: 1;
+    }
+
+    .account-profile {
+        flex-wrap: wrap;
+    }
+
+    .account-edit-btn {
+        margin-left: auto;
+    }
+
+    .account-section {
+        padding: 28px 0;
+    }
+
+    .account-section-heading {
+        align-items: flex-start;
+    }
+
+    .subscription-panel {
+        padding: 19px;
+    }
+
+    .subscription-action {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-movie-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .account-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 400px) {
+    .account-section-heading {
+        flex-direction: column;
+    }
+
+    .subscription-details {
+        grid-template-columns: 1fr;
+    }
+}

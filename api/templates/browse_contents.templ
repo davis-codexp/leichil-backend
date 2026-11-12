@@ -1,0 +1,503 @@
+package templates
+
+import (
+    "fmt"
+    "leichil-backend/api/models"
+    "leichil-backend/api/utils"
+) 
+
+templ BrowseContents(active_tab string, contents []models.Content) {
+    <main class="buy-page">
+        <header class="buy-header">
+            <a href="https://leichiltv.com" class="buy-back-link">
+                <span>←</span> Back to Home
+            </a>
+            <div class="buy-heading">
+                <span class="buy-eyebrow">LEICHIL TV STORE</span>
+                <h1>Find Your Next <span>Favourite</span></h1>
+                <p>Discover Manipuri movies and choose the entertainment plan that suits you.</p>
+            </div>
+        </header>
+        <section id="main-block" class="buy-content">
+            @PremiumContents(contents)
+        </section>
+        <footer class="buy-footer">
+            <p>
+                Enjoy the best of Manipuri entertainment with
+                <strong>Leichil TV</strong>.
+            </p>
+        </footer>
+    </main>
+}
+
+func get_tab_class(tab_name, active_tab string) string {
+    var class_name = "buy-tab"
+    if tab_name == active_tab {
+        class_name = class_name + " active"
+    }
+    return class_name
+}
+
+templ tab_buttons(active_tab string) {
+    <div class="buy-tabs" role="tablist">
+        <button
+            class={get_tab_class("premium", active_tab)}
+            type="button"
+            data-tab="premium"
+            role="tab"
+            aria-selected="true"
+            hx-get="/public/browse-contents/tabs?tab=premium&partial=true"
+            hx-target="#main-block"
+            hx-swap="innerHTML" 
+        >
+            <span class="buy-tab-icon">▶</span>
+            Premium Content
+        </button>
+        <button
+            class={get_tab_class("subscription", active_tab)}
+            type="button"
+            data-tab="subscriptions"
+            role="tab"
+            aria-selected="false"
+            hx-get="/public/browse-contents/tabs?tab=subscription&partial=true"
+            hx-target="#main-block"
+            hx-swap="innerHTML"
+        >
+            <span class="buy-tab-icon">✦</span>
+            Subscription Plans
+        </button>
+    </div>
+}
+
+func get_purchase_url(purchase_type string, id int) string {
+    enc_id, _ := utils.Encrypt(fmt.Sprintf("%d", id))
+    var url = fmt.Sprintf("/public/purchase?%s=%s", purchase_type, enc_id)
+    return url
+}
+
+templ PremiumContents(contents []models.Content) { 
+    @tab_buttons("premium")
+    <section class="buy-panel active" id="premium-panel" role="tabpanel">
+        <div class="buy-section-heading">
+            <div>
+                <span class="buy-eyebrow">OWN YOUR ENTERTAINMENT</span>
+                <h2>Premium Movies</h2>
+                <p>Purchase individual titles and watch them on the Leichil TV app.</p>
+            </div>
+            <span class="buy-count">PREMIUM</span>
+        </div>
+        <div class="buy-card-grid">
+            for _, content := range contents {
+                <button
+                    hx-get={fmt.Sprintf("%s&partial=true", get_purchase_url("content", models.SanitizeData(content.ID)))}
+                    hx-target="#main-content"
+                    hx-swap="innerHTML"
+                    hx-push-url={get_purchase_url("content", models.SanitizeData(content.ID))}
+                    type="button"
+                    class="buy-movie-card"
+                >
+                    <div class="buy-poster poster-one">
+                        <span class="poster-label">PREMIUM</span>
+                        <span class="poster-number">
+                            <img src={fmt.Sprintf("https://assets.leichiltv.com/%s", models.SanitizeData(content.Thumbnail))} />
+                        </span>
+                        <span class="poster-play">▶</span>
+                    </div>
+                    <div class="buy-card-info">
+                        <div>
+                            <h3>{models.SanitizeData(content.Name)}</h3>
+                            <p>{models.SanitizeData(content.Genre)}</p>
+                        </div>
+                        <strong>₹{models.SanitizeData(content.Price)}</strong>
+                    </div>
+                </button>
+            } 
+        </div>
+    </section>
+}
+
+templ SubscriptionSection(plan_list []models.SubscriptionPlan) {
+    @tab_buttons("subscription")
+    <section class="buy-panel active" id="subscriptions-panel" role="tabpanel">
+        <div class="buy-section-heading">
+            <div>
+                <span class="buy-eyebrow">MORE TO WATCH</span>
+                <h2>Choose Your Plan</h2>
+                <p>Get access to subscription-based entertainment on Leichil TV.</p>
+            </div>
+            <span class="buy-count">1 PLAN AVAILABLE</span>
+        </div>
+        <div class="buy-plan-grid">
+            for _, plan := range plan_list {
+                <button
+                    type="button"
+                    hx-get={fmt.Sprintf("%s&partial=true", get_purchase_url("subscription", models.SanitizeData(plan.ID)))}
+                    hx-target="#main-content"
+                    hx-swap="innerHTML"
+                    hx-push-url={get_purchase_url("subscription", models.SanitizeData(plan.ID))}
+                    class="buy-plan-card featured-plan"
+                    hx-get=""
+                >
+                    <span class="buy-plan-popular">MONTHLY PLAN</span>
+                    <span class="buy-plan-icon">✦</span>
+                    <span class="buy-plan-label">SUBSCRIPTION</span>
+                    <h3>Monthly Plan</h3>
+                    <div class="buy-plan-price">
+                        ₹{models.SanitizeData(plan.Price)} <span>Validity: {models.SanitizeData(plan.DurationMonths)} Months</span>
+                    </div>
+                    <p>
+                        Enjoy subscription-based Manipuri movies and entertainment
+                        on the Leichil TV app.
+                    </p>
+                    <span class="buy-plan-cta">
+                        Subscribe Now <span>→</span>
+                    </span>
+                </button>
+            }  
+        </div>
+    </section>
+}
+
+templ PremiumPurchase(content models.Content) {
+    <div class="purchase-page">
+        <div class="purchase-container">
+            <div class="purchase-heading">
+                <span class="buy-eyebrow">LEICHIL TV CHECKOUT</span>
+                <h1>Almost <span>There.</span></h1>
+                <p>Enter your mobile number to continue with your purchase.</p>
+            </div>
+            <div class="purchase-grid">
+                <section class="purchase-form-card">
+                    <div class="purchase-step">
+                        <div>
+                            <h2>Your Mobile Number</h2>
+                            <p>
+                                We'll use this number to find or create
+                                your Leichil TV account.
+                            </p>
+                        </div>
+                    </div>
+                    <form id="customer-lookup-form" hx-post="/public/purchase/verify" hx-swap="outerHTML">
+                        <label for="customer-mobile">Mobile Number</label>
+                        <div class="purchase-mobile-input">
+                            <span>+91</span>
+                            <input
+                                id="mobile"
+                                name="mobile"
+                                type="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="Enter 10-digit mobile number"
+                                required
+                            />
+                            <input name="content_id" value={models.SanitizeData(content.ID)} hidden />
+                            <input name="price" value={models.SanitizeData(content.Price)} hidden />
+                            <input name="description" value={fmt.Sprintf("Payment for %s", models.SanitizeData(content.Name))} hidden />
+                        </div>
+                        <p class="purchase-input-hint">
+                            Enter your 10-digit mobile number.
+                        </p>
+                        <button class="purchase-continue" type="submit">
+                            Continue <span>→</span>
+                        </button>
+                        <p class="purchase-form-note">
+                            Your account details will be used to manage
+                            your Leichil TV purchases.
+                        </p>
+                    </form>
+                </section>
+                <aside class="purchase-summary">
+                    <span class="buy-eyebrow">YOUR SELECTION</span>
+                    <div class="purchase-summary-art">
+                        <img src={fmt.Sprintf("https://assets.leichiltv.com/%s", models.SanitizeData(content.Thumbnail))} />
+                    </div>
+                    <span class="purchase-type-label">
+                        PREMIUM CONTENT
+                    </span>
+                    <h2>{ models.SanitizeData(content.Name) }</h2>
+                    <div class="purchase-summary-price">₹{ models.SanitizeData(content.Price) }</div>
+                    <div class="purchase-summary-divider"></div>
+                </aside>
+            </div>
+        </div>
+    </div>
+}
+
+templ CustomerNotFound() {
+    <div>
+        <div>
+            <h2>Mobile Number not Registered</h2>
+            <p>
+                This mobile number is not registered with Leichil TV. Please create an account from the mobile app with this mobile number.
+            </p>
+            <button type="button" onclick="window.location.reload()" class="purchase-continue" type="button">
+                Go Back
+            </button>
+        </div>
+    </div>
+}
+
+templ CustomerDetail(customer models.Customer, api_key, order_id, description string, amount int) {
+    <div>
+        <label for="customer-mobile">Mobile</label>
+        <div class="purchase-mobile-input">
+            <span>+91</span>
+            <input
+                id="mobile"
+                name="mobile"
+                value={models.SanitizeData(customer.Mobile)}
+            />
+        </div>
+        <br />
+        <label for="customer-name">Name</label>
+        <input
+            id="name"
+            name="name"
+            value={models.SanitizeData(customer.Name)}
+        />
+        <button id="pay-btn" class="purchase-continue" type="button">
+            Proceed to Buy <span>→</span>
+        </button>
+        <input type="hidden" id="amount" value={amount} />
+        <input type="hidden" id="description" value={description} />
+        <input type="hidden" id="order_id" value={order_id} />
+        <input type="hidden" id="api_key" value={api_key} />
+        <input type="hidden" id="customer_name" value={models.SanitizeData(customer.Name)} />
+        <input type="hidden" id="contact" value={models.SanitizeData(customer.Mobile)} />
+    </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('pay-btn').onclick = function (e) {
+            var options = {
+                "key": document.getElementById("api_key").value,
+                "amount": document.getElementById("amount").value,
+                "currency": "INR",
+                "name": "IRONBLADE INNOVATION LABS PRIVATE LIMITED",
+                "description": document.getElementById("description").value,
+                "order_id": document.getElementById("order_id").value,
+                "handler": async function (response){
+                    const payload = {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature 
+                    };
+                    const url = "http://127.0.0.1:9999/public/orders/verify";
+                    try {
+                        const response = await fetch(url, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) {
+                            console.log("Verification API Error");
+                            window.location.replace("http://127.0.0.1:9999/public/payment-error");
+                        } else {
+                            const result = await response.json();
+                            if (result?.success) window.location.replace("http://127.0.0.1:9999/public/payment-success");
+                            else {
+                                console.log(result);
+                                window.location.replace("http://127.0.0.1:9999/public/payment-error");
+                            }
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Unable to verify payment");
+                    }
+                },
+                "prefill": {
+                    "name": document.getElementById("customer_name").value,
+                    "contact": document.getElementById("contact").value
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
+}
+
+templ SubscriptionPurchase(plan models.SubscriptionPlan) {
+    <div class="purchase-page">
+        <div class="purchase-container">
+            <div class="purchase-heading">
+                <span class="buy-eyebrow">LEICHIL TV CHECKOUT</span>
+                <h1>Almost <span>There.</span></h1>
+                <p>Enter your mobile number to continue with your purchase.</p>
+            </div>
+            <div class="purchase-grid">
+                <section class="purchase-form-card">
+                    <div class="purchase-step">
+                        <div>
+                            <h2>Your Mobile Number</h2>
+                            <p>
+                                We'll use this number to find or create
+                                your Leichil TV account.
+                            </p>
+                        </div>
+                    </div>
+                    <form id="customer-lookup-form" hx-post="/public/subscription/verify" hx-swap="outerHTML">
+                        <label for="customer-mobile">Mobile Number</label>
+                        <div class="purchase-mobile-input">
+                            <span>+91</span>
+                            <input
+                                id="customer-mobile"
+                                name="mobile"
+                                type="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="Enter 10-digit mobile number"
+                                required
+                            />
+                            <input name="plan_id" value={models.SanitizeData(plan.ID)} hidden />
+                            <input name="price" value={models.SanitizeData(plan.Price)} hidden />
+                            <input name="description" value={fmt.Sprintf("Payment for %s Subscription", models.SanitizeData(plan.Name))} hidden />
+                        </div>
+                        <p class="purchase-input-hint">
+                            Enter your 10-digit Indian mobile number.
+                        </p>
+                        <button class="purchase-continue" type="submit">
+                            Continue <span>→</span>
+                        </button>
+                        <p
+                            id="purchase-preview-message"
+                            class="purchase-form-note"
+                            hidden>
+                        </p>
+                        <p class="purchase-form-note">
+                            Your account details will be used to manage
+                            your Leichil TV purchases.
+                        </p>
+                    </form>
+                </section>
+                <aside class="purchase-summary">
+                    <span class="purchase-type-label">
+                        SUBSCRIPTION PLAN
+                    </span>
+                    <h2>{ models.SanitizeData(plan.Name) }</h2>
+                    <p class="purchase-duration">{ models.SanitizeData(plan.DurationMonths) } Months</p>
+                    <div class="purchase-summary-price">₹{ models.SanitizeData(plan.Price) }</div>
+                    <div class="purchase-summary-row">
+                        <span>Payment</span>
+                        <strong>Next step</strong>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+}
+
+templ Purchase(title string, itemType string, itemID string, price string, duration string) {
+    <main class="purchase-page">
+        <div class="purchase-container">
+            <a href="/buy" class="buy-back-link">
+                <span>←</span> Back to Store
+            </a>
+            <div class="purchase-heading">
+                <span class="buy-eyebrow">LEICHIL TV CHECKOUT</span>
+                <h1>Almost <span>There.</span></h1>
+                <p>Enter your mobile number to continue with your purchase.</p>
+            </div>
+            <div class="purchase-grid">
+                <section class="purchase-form-card">
+                    <div class="purchase-step">
+                        <span>01</span>
+                        <div>
+                            <h2>Your Mobile Number</h2>
+                            <p>
+                                We'll use this number to find or create
+                                your Leichil TV account.
+                            </p>
+                        </div>
+                    </div>
+                    <form id="customer-lookup-form">
+                        <label for="customer-mobile">Mobile Number</label>
+                        <div class="purchase-mobile-input">
+                            <span>+91</span>
+                            <input
+                                id="customer-mobile"
+                                name="mobile"
+                                type="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="Enter 10-digit mobile number"
+                                required />
+                        </div>
+                        <p class="purchase-input-hint">
+                            Enter your 10-digit Indian mobile number.
+                        </p>
+                        <div
+                            id="new-customer-fields"
+                            class="new-customer-fields"
+                            hidden>
+                            <div class="purchase-step purchase-step-next">
+                                <span>02</span>
+                                <div>
+                                    <h2>Create Your Account</h2>
+                                    <p>
+                                        We couldn't find an account with this number.
+                                        Enter your name to continue.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <label for="customer-name">Full Name</label>
+
+                            <input
+                                id="customer-name"
+                                name="name"
+                                type="text"
+                                placeholder="Enter your full name"
+                                autocomplete="name" />
+                        </div>
+                        <button class="purchase-continue" type="submit">
+                            Continue <span>→</span>
+                        </button>
+                        <p
+                            id="purchase-preview-message"
+                            class="purchase-form-note"
+                            hidden>
+                        </p>
+                        <p class="purchase-form-note">
+                            Your account details will be used to manage
+                            your Leichil TV purchases.
+                        </p>
+                    </form>
+                </section>
+                <aside class="purchase-summary">
+                    <span class="buy-eyebrow">YOUR SELECTION</span>
+                    <div class="purchase-summary-art">
+                        if itemType == "subscription" {
+                            <span>✦</span>
+                        } else {
+                            <span>▶</span>
+                        }
+                    </div>
+                    <span class="purchase-type-label">
+                        if itemType == "subscription" {
+                            SUBSCRIPTION PLAN
+                        } else {
+                            PREMIUM CONTENT
+                        }
+                    </span>
+                    <h2>{ title }</h2>
+                    if itemType == "subscription" {
+                        <p class="purchase-duration">{ duration }</p>
+                    }
+                    <div class="purchase-summary-price">₹{ price }</div>
+                    <div class="purchase-summary-divider"></div>
+                    <div class="purchase-summary-row">
+                        <span>Item ID</span>
+                        <strong>{ itemID }</strong>
+                    </div>
+                    <div class="purchase-summary-row">
+                        <span>Payment</span>
+                        <strong>Next step</strong>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+}

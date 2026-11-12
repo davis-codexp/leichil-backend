@@ -9,8 +9,8 @@ import (
 
 type Customer struct {
 	ID        *int    `json:"id"`
-	Name      *string `json:"name,omitempty"`
-	Mobile    *string `json:"mobile,omitempty"`
+	Name      *string `json:"name,omitempty" form:"name"`
+	Mobile    *string `json:"mobile,omitempty" form:"mobile"`
 	Avatar    *string `json:"avatar,omitempty"`
 	CreatedOn *string `json:"created_on,omitempty"`
 }

@@ -1,0 +1,100 @@
+package templates
+
+templ PaymentSuccess() {
+    <main class="payment-result-page">
+        <section class="payment-result-card payment-success">
+            <div class="payment-status-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="payment-eyebrow">PAYMENT CONFIRMED</span>
+            <h1>Payment Successful!</h1>
+            <p class="payment-description">
+                Your payment has been received successfully. Thank you for choosing Leichil TV.
+            </p>
+            <div class="payment-info">
+                <span class="payment-info-label">PAYMENT STATUS</span>
+                <strong>Successful</strong>
+                <p>Your purchase is being updated in your account.</p>
+            </div>
+            <div class="payment-actions">
+                <a href="https://leichiltv.com" class="payment-secondary-btn">
+                    Back to Home
+                </a>
+            </div>
+        </section>
+    </main>
+}
+
+templ PaymentFailure() {
+    <main class="payment-result-page">
+        <section class="payment-result-card payment-failure">
+            <div class="payment-status-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <span class="payment-eyebrow">PAYMENT NOT COMPLETED</span>
+            <h1>Payment Failed</h1>
+            <p class="payment-description">
+                We couldn't complete your payment. Don't worry, you can try again.
+            </p>
+
+            <div class="payment-info">
+                <span class="payment-info-label">PAYMENT STATUS</span>
+                <strong>Failed</strong>
+                <p>No successful payment confirmation was received.</p>
+            </div>
+
+            <div class="payment-actions">
+                <a href="https://leichiltv.com" class="payment-secondary-btn">
+                    Back to Home
+                </a>
+            </div>
+
+            <p class="payment-support">
+                If money was deducted, please <a href="/contact">Contact Support</a>.
+            </p>
+        </section>
+    </main>
+}
+
+templ PaymentPending() {
+    <main class="payment-result-page">
+        <section class="payment-result-card payment-pending">
+            <div class="payment-status-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 7V12L15 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <span class="payment-eyebrow">AWAITING CONFIRMATION</span>
+            <h1>Payment Pending</h1>
+            <p class="payment-description">
+                Your payment is being processed. Please wait while we confirm the transaction.
+            </p>
+
+            <div class="payment-info">
+                <span class="payment-info-label">PAYMENT STATUS</span>
+                <strong>Pending</strong>
+                <p>Your account will be updated once payment is confirmed.</p>
+            </div>
+
+            <div class="payment-actions">
+                <a href="/account" class="payment-primary-btn">
+                    Check My Account
+                </a>
+                <a href="/" class="payment-secondary-btn">
+                    Back to Home
+                </a>
+            </div>
+
+            <p class="payment-support">
+                Please don't make another payment while this transaction is being verified.
+            </p>
+        </section>
+    </main>
+}

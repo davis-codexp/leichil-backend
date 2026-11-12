@@ -177,7 +177,7 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 	query_params, err := url.ParseQuery(data)
 	if err != nil {
 		log.Error("Unable to parse decrypted query params: ", err.Error())
-		return Render(ctx, templates.PaymentError())
+		return Render(ctx, templates.PaymentFailure())
 	}
 	var customer_id = utils.GetIntQueryParams(query_params.Get("customer_id"), 0)
 	var content_id = utils.GetIntQueryParams(query_params.Get("content_id"), 0)
@@ -198,14 +198,14 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 	customer_result, err := customer.GetById(fmt.Sprintf(`%d`, customer_id))
 	if err != nil {
 		log.Error("Error in getting Customer: ", err.Error())
-		return Render(ctx, templates.PaymentError())
+		return Render(ctx, templates.PaymentFailure())
 	}
 	customer = utils.FormatSingleResult[models.Customer](customer_result)
 
 	content, err = content.GetById(fmt.Sprintf(`%d`, content_id), 1)
 	if err != nil {
 		log.Error("Error in getting Content: ", err.Error())
-		return Render(ctx, templates.PaymentError())
+		return Render(ctx, templates.PaymentFailure())
 	}
 
 	var token = models.CustomerToken{CustomerID: customer.ID}
@@ -218,7 +218,7 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 		_, plan_result, err := plan.Get(0, 1, map[string]string{})
 		if err != nil || len(plan_result) == 0 {
 			log.Error("Error in getting Subscription Plans: ", err.Error())
-			return Render(ctx, templates.PaymentError())
+			return Render(ctx, templates.PaymentFailure())
 		}
 		plan = utils.FormatSingleResult[models.SubscriptionPlan](plan_result)
 		order.PlanID = plan.ID

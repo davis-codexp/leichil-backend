@@ -77,7 +77,7 @@ func Encrypt(plain_text string) (string, error) {
 	}
 	var cipher []byte = gcm.Seal(nonce, nonce, []byte(plain_text), nil)
 	cipher_text = base64.URLEncoding.EncodeToString(cipher)
-	log.Info("CIPHER TEXT: ", cipher_text)
+	//log.Info("CIPHER TEXT: ", cipher_text)
 	return cipher_text, err
 }
 

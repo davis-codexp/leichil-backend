@@ -48,6 +48,14 @@ type PaymentQRBody struct {
 	DeviceID    *string `json:"device_id,omitempty"`
 }
 
+type WebPurchaseBody struct {
+	Mobile      *string `form:"mobile"`
+	Price       *int    `form:"price"`
+	Description *string `form:"description"`
+	ContentID   *int    `form:"content_id"`
+	PlanID      *int    `form:"plan_id"`
+}
+
 func (obj PaymentOrder) Get(offset, limit int, params map[string]string) (CountResult, []any, error) {
 	var fields = get_payment_order_fields(&obj)
 	var query string = get_payment_orders_query
@@ -73,6 +81,44 @@ func (obj PaymentOrder) VerifyCustomerPurchase(token CustomerToken, content_id s
 		return false
 	}
 	return len(result) > 0
+}
+
+func (obj *PaymentOrder) CreatePurchaseOrder(amount int, customer Customer) map[string]any {
+	var response = make(map[string]any)
+	if len(rzp_key) == 0 {
+		rzp_key = os.Getenv("RZP_KEY_ID")
+	}
+	if len(rzp_secret) == 0 {
+		rzp_secret = os.Getenv("RZP_KEY_SECRET")
+	}
+	if rzp_client == nil {
+		rzp_client = razorpay.NewClient(rzp_key, rzp_secret)
+	}
+	var data = map[string]interface{}{
+		"amount":   amount,
+		"currency": "INR",
+		"receipt":  "receipt_srv_01",
+	}
+	body, err := rzp_client.Order.Create(data, nil)
+	if err != nil {
+		log.Error("Unable to create razorpay order: ", err.Error())
+		return response
+	}
+	var order_id = body["id"].(string)
+	obj.OrderID = &order_id
+	obj.Amount = &amount
+	obj.CustomerID = customer.ID
+	var fields = get_payment_order_add_fields(obj)
+	if utils.RunInsert(insert_payment_order_query, fields) {
+		response = map[string]any{
+			"order_id": order_id,
+			"amount":   amount,
+			"currency": "INR",
+		}
+	} else {
+		log.Info("Error while inserting payment order into DB")
+	}
+	return response
 }
 
 func (obj *PaymentOrder) Create(token CustomerToken, order_type string) map[string]any {
