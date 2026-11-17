@@ -21,6 +21,9 @@ func public_route_handler(router fiber.Router) {
 	router.Get("/payment-error", public_payment_error_handler)
 	router.Get("/payment-success", public_payment_success_handler)
 	router.Post("/orders/verify", verify_payment)
+
+	var advance_booking_routes = router.Group("/advance-bookings")
+	advance_booking_handler(advance_booking_routes)
 }
 
 func public_content_handler(ctx *fiber.Ctx) error {

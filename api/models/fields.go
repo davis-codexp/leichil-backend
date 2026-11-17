@@ -165,3 +165,17 @@ func get_payment_order_fields(obj *PaymentOrder) []any {
 func get_payment_order_add_fields(obj *PaymentOrder) []any {
 	return []any{obj.OrderID, obj.Amount, obj.ContentID, obj.PlanID, obj.CustomerID}
 }
+
+func get_advance_booking_fields(obj *AdvanceBooking) []any {
+	return []any{
+		&obj.ContentID, &obj.Price, &obj.StartDate, &obj.EndDate,
+		&obj.PremiereDate, &obj.CreatedOn, &obj.CreatedBy, &obj.ContentName,
+		&obj.ContentPrice, &obj.Thumbnail, &obj.Genre,
+	}
+}
+
+func get_advance_booking_add_fields(obj *AdvanceBooking) []any {
+	return []any{
+		obj.ContentID, obj.Price, obj.StartDate, obj.EndDate, obj.PremiereDate,
+	}
+}

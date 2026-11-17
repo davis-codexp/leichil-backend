@@ -186,3 +186,16 @@ CREATE TABLE customer_favourites(
     FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     FOREIGN KEY(content_id) REFERENCES contents(id) ON DELETE CASCADE
 );
+
+CREATE TABLE advance_bookings (
+    content_id INT,
+    price INT,
+    start_date DATE,
+    end_date DATE,
+    premiere_date DATE,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 1,
+    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,
+    FOREIGN KEY(content_id) REFERENCES contents(id) ON DELETE CASCADE,
+    FOREIGN KEY(created_by) REFERENCES users(id)
+);

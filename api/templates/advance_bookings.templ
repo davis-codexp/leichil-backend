@@ -1,0 +1,154 @@
+package templates
+
+import (
+    "fmt"
+    "leichil-backend/api/models"
+    "leichil-backend/api/utils"
+    "time"
+)
+
+func format_date(date_str string) string {
+	t, err := time.Parse("2006-01-02", date_str)
+	if err != nil {
+		return date_str
+	}
+	return t.Format("02-01-2006")
+}
+
+func get_booking_url(content_id int) string {
+    enc_id, _ := utils.Encrypt(fmt.Sprintf("%d", content_id))
+    var url = fmt.Sprintf("/public/advance-bookings/%s", enc_id)
+    return url
+}
+
+templ AdvanceBookings(list []models.AdvanceBooking) {
+    <main class="buy-page">
+        <header class="buy-header">
+            <a href="https://leichiltv.com" class="buy-back-link">
+                <span>←</span> Back to Home
+            </a>
+            <div class="buy-heading">
+                <span class="buy-eyebrow">LEICHIL TV STORE</span>
+                <h1>Advance Bookings Are Now <span>OPEN</span></h1>
+            </div>
+        </header>
+        <section id="main-block" class="buy-content">
+            <section class="buy-panel active" id="premium-panel" role="tabpanel">
+                <div class="buy-section-heading">
+                    <div>
+                        <span class="buy-eyebrow">OWN YOUR ENTERTAINMENT</span>
+                        <h2>Book your Favourite Upcoming Release</h2>
+                    </div>
+                    <span class="buy-count">PREMIUM</span>
+                </div>
+                <div class="buy-card-grid">
+                    for _, item := range list {
+                        <button
+                            hx-get={fmt.Sprintf(get_booking_url(models.SanitizeData(item.ContentID)))}
+                            hx-target="#main-content"
+                            hx-swap="innerHTML"
+                            hx-push-url={get_booking_url(models.SanitizeData(item.ContentID))}
+                            type="button"
+                            class="buy-movie-card"
+                        >
+                            <div class="buy-poster poster-one">
+                                <span class="poster-label">PREMIUM</span>
+                                <span class="poster-number">
+                                    <img src={fmt.Sprintf("https://assets.leichiltv.com/%s", models.SanitizeData(item.Thumbnail))} />
+                                </span>
+                                <span class="poster-play">▶</span>
+                            </div>
+                            <div class="buy-card-info">
+                                <div>
+                                    <h3>{models.SanitizeData(item.ContentName)}</h3>
+                                    <p>Streaming starts on {format_date(models.SanitizeData(item.PremiereDate))}</p>
+                                </div>
+                                if models.SanitizeData(item.ContentPrice) != models.SanitizeData(item.Price) {
+                                    <s><strong>₹{models.SanitizeData(item.ContentPrice)}</strong></s>
+                                }
+                                <strong>₹{models.SanitizeData(item.Price)}</strong>
+                            </div>
+                        </button>
+                    } 
+                </div>
+            </section>
+        </section>
+        <footer class="buy-footer">
+            <p>
+                Enjoy the best of Manipuri entertainment with
+                <strong>Leichil TV</strong>.
+            </p>
+        </footer>
+    </main>
+}
+
+templ BookContent(item models.AdvanceBooking) {
+    <div class="purchase-page">
+        <div class="purchase-container">
+            <div class="purchase-heading">
+                <span class="buy-eyebrow">LEICHIL TV CHECKOUT</span>
+                <h1>Almost <span>There.</span></h1>
+                <p>Enter your mobile number to continue with your purchase.</p>
+            </div>
+            <div class="purchase-grid">
+                <section class="purchase-form-card">
+                    <div class="purchase-step">
+                        <div>
+                            <h2>Your Mobile Number</h2>
+                            <p>
+                                We'll use this number to find or create
+                                your Leichil TV account.
+                            </p>
+                        </div>
+                    </div>
+                    <form id="customer-lookup-form" hx-post="/public/purchase/verify" hx-swap="outerHTML">
+                        <label for="customer-mobile">Mobile Number</label>
+                        <div class="purchase-mobile-input">
+                            <span>+91</span>
+                            <input
+                                id="mobile"
+                                name="mobile"
+                                type="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="Enter 10-digit mobile number"
+                                required
+                            />
+                            <input name="content_id" value={models.SanitizeData(item.ContentID)} hidden />
+                            <input name="price" value={models.SanitizeData(item.Price)} hidden />
+                            <input name="description" value={fmt.Sprintf("Payment for %s", models.SanitizeData(item.ContentName))} hidden />
+                        </div>
+                        <p class="purchase-input-hint">
+                            Enter your 10-digit mobile number.
+                        </p>
+                        <button class="purchase-continue" type="submit">
+                            Continue <span>→</span>
+                        </button>
+                        <p class="purchase-form-note">
+                            Your account details will be used to manage
+                            your Leichil TV purchases.
+                        </p>
+                    </form>
+                </section>
+                <aside class="purchase-summary">
+                    <span class="buy-eyebrow">YOUR SELECTION</span>
+                    <div class="purchase-summary-art">
+                        <img src={fmt.Sprintf("https://assets.leichiltv.com/%s", models.SanitizeData(item.Thumbnail))} />
+                    </div>
+                    <span class="purchase-type-label">
+                        PREMIUM CONTENT
+                    </span>
+                    <h2>{ models.SanitizeData(item.ContentName) }</h2>
+                    <p>Streaming Starts on { format_date(models.SanitizeData(item.PremiereDate)) }</p>
+                    <div class="purchase-summary-price">
+                        if models.SanitizeData(item.ContentPrice) != models.SanitizeData(item.Price) {
+                            <s><strong>₹{models.SanitizeData(item.ContentPrice)}</strong></s>
+                        }
+                        ₹{ models.SanitizeData(item.Price) }
+                    </div>
+                    <div class="purchase-summary-divider"></div>
+                </aside>
+            </div>
+        </div>
+    </div>
+}

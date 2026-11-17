@@ -407,3 +407,23 @@ var get_device_tokens_query = `
 `
 var insert_device_token_query = "INSERT INTO device_tokens(device_token, customer_id) VALUES(?, ?)"
 var delete_device_token_query = "DELETE FROM device_tokens WHERE device_token = ?"
+
+/*------------------------ADVANCE BOOKING QUERIES--------------------*/
+var get_advance_bookings_query = `
+	SELECT ab.content_id, ab.price, ab.start_date, ab.end_date, ab.premiere_date, ab.created_on, ab.created_by, con.name AS content_name, con.price AS content_price, con.thumbnail, con.genre
+	FROM advance_bookings ab
+	INNER JOIN contents con ON con.id = ab.content_id
+	INNER JOIN users u ON u.id = ab.created_by
+	WHERE ab.is_deleted = 0
+`
+var advance_booking_content_filter = " AND ab.content_id = ?"
+var advance_booking_active_filter = " AND ab.start_date >= CURDATE() AND CURDATE() <= ab.end_date"
+var insert_advance_booking_query = `
+	INSERT INTO advance_bookings(
+		content_id, price, start_date, end_date, premiere_date, created_by
+	) VALUES(?, ?, ?, ?, ?, ?)
+`
+var update_advance_booking_query = `
+	UPDATE advance_bookings SET price = ?, start_date = ?, end_date = ?, premiere_date = ? WHERE content_id = ?
+`
+var delete_advance_booking_query = "UPDATE advance_bookings SET is_deleted = 1 WHERE content_id = ?"
