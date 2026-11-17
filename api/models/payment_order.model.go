@@ -5,7 +5,6 @@ import (
 	"hash"
 	"leichil-backend/api/utils"
 	"os"
-	"strings"
 	"time"
 
 	"crypto/hmac"
@@ -190,7 +189,7 @@ func (obj *PaymentOrder) Create(token CustomerToken, order_type string) map[stri
 
 func (obj *VerifyPaymentBody) VerifyPayment() bool {
 	var flag = true
-	//var status = "SUCCESS"
+	var status = "SUCCESS"
 	var signature_payload = SanitizeData(obj.RazorpayOrderID) + "|" + SanitizeData(obj.RazorpayPaymentID)
 	log.Info("RAZORPAY ORDER ID: ", SanitizeData(obj.RazorpayOrderID))
 	log.Info("RAZORPAY PAYMENT ID: ", SanitizeData(obj.RazorpayPaymentID))
@@ -199,33 +198,44 @@ func (obj *VerifyPaymentBody) VerifyPayment() bool {
 	var signature = hex.EncodeToString(h.Sum(nil))
 	if signature != SanitizeData(obj.RazorpaySignature) {
 		log.Info("Invalid transaction signature: ", signature, SanitizeData(obj.RazorpaySignature))
-		//status = "FAILED"
+		status = "FAILED"
 		flag = false
 	}
-	//var fields = []any{status, obj.RazorpayPaymentID, obj.RazorpayOrderID}
-	//utils.RunUpdate(update_payment_order_query, fields)
+	var po PaymentOrder
+	po.UpdateOrder(status, SanitizeData(obj.RazorpayPaymentID), SanitizeData(obj.RazorpayOrderID))
 	return flag
 }
 
 func (po PaymentOrder) UpdateOrder(status, payment_id, order_id string) bool {
-	var fields = []any{status, payment_id, order_id}
-	return utils.RunUpdate(update_payment_order_query, fields)
+	var po_fields = get_payment_order_fields(&po)
+	var po_query = get_payment_orders_query + payment_order_status_filter + payment_order_id_filter
+	var po_filter = []any{"SUCCESS", order_id}
+	result, _ := GetSingleData(po_filter, po_fields, &po, po_query)
+	if len(result) == 0 {
+		var fields = []any{status, payment_id, order_id}
+		return utils.RunUpdate(update_payment_order_query, fields)
+	}
+	return true
 }
 
 func (po PaymentOrder) UpdateSubscription(order_id string) {
-	payment_type, po := get_payment_type_by_id(order_id)
-	switch strings.ToUpper(payment_type) {
-	case "SUBSCRIPTION":
-		var sub = new(Subscription)
-		var token = CustomerToken{CustomerID: po.CustomerID}
-		sub.CustomerID = po.CustomerID
-		sub.PlanID = po.PlanID
-		sub.Add(token)
-	case "PURCHASE":
-		complimentary_subscription(po)
-	default:
-		log.Info("Invalid Payment Type: ", payment_type)
-	}
+	_, po = get_payment_type_by_id(order_id)
+	/*
+		payment_type, po := get_payment_type_by_id(order_id)
+		switch strings.ToUpper(payment_type) {
+		case "SUBSCRIPTION":
+			var sub = new(Subscription)
+			var token = CustomerToken{CustomerID: po.CustomerID}
+			sub.CustomerID = po.CustomerID
+			sub.PlanID = po.PlanID
+			sub.Add(token)
+		case "PURCHASE":
+			complimentary_subscription(po)
+		default:
+			log.Info("Invalid Payment Type: ", payment_type)
+		}
+	*/
+	complimentary_subscription(po)
 }
 
 func complimentary_subscription(po PaymentOrder) {

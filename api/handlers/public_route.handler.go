@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"leichil-backend/api/models"
 	"leichil-backend/api/templates"
 	"leichil-backend/api/utils"
@@ -25,7 +26,8 @@ func public_route_handler(router fiber.Router) {
 func public_content_handler(ctx *fiber.Ctx) error {
 	var content models.Content
 	var params = map[string]string{
-		"category": "PREMIUM",
+		"category":  "PREMIUM",
+		"published": "1",
 	}
 	_, result, _ := content.Get(0, 10000, params)
 	var contents = utils.FormatListResult[models.Content](result)
@@ -84,6 +86,12 @@ func purchase_verify_handler(ctx *fiber.Ctx) error {
 		_, result, _ := obj.Get(0, 1, filter)
 		if len(result) > 0 {
 			obj = utils.FormatSingleResult[models.Customer](result)
+			var token = models.CustomerToken{CustomerID: obj.ID}
+			var po models.PaymentOrder
+			var is_purchased bool = po.VerifyCustomerPurchase(token, fmt.Sprintf("%d", models.SanitizeData(body.ContentID)))
+			if is_purchased {
+				return render_component(templates.AlreadyPurchased(), ctx, true, "")
+			}
 			var api_key = os.Getenv("RZP_KEY_ID")
 			var order = new(models.PaymentOrder)
 			order.ContentID = body.ContentID

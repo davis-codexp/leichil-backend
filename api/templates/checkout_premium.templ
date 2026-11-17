@@ -196,7 +196,7 @@ templ PremiumCheckout(
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature: response.razorpay_signature 
                     };
-                    const url = "http://127.0.0.1:9999/api/v1/app/orders/verify";
+                    const url = "https://leichiltv.com/api/v1/app/orders/verify";
                     try {
                         const response = await fetch(url, {
                             method: "POST",
@@ -208,13 +208,13 @@ templ PremiumCheckout(
                         });
                         if (!response.ok) {
                             console.log("Verification API Error");
-                            window.location.replace("http://127.0.0.1:9999/payment-error");
+                            window.location.replace("https://leichiltv.com/public/payment-error");
                         } else {
                             const result = await response.json();
-                            if (result?.success) window.location.replace("http://127.0.0.1:9999/payment-success");
+                            if (result?.success) window.location.replace("https://leichiltv.com/public/payment-success");
                             else {
                                 console.log(result);
-                                window.location.replace("http://127.0.0.1:9999/payment-error");
+                                window.location.replace("https://leichiltv.com/public/payment-error");
                             }
                         }
                     } catch (err) {

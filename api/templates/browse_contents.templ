@@ -226,9 +226,23 @@ templ PremiumPurchase(content models.Content) {
 templ CustomerNotFound() {
     <div>
         <div>
-            <h2>Mobile Number not Registered</h2>
+            <h2 style="color: #E50B17;">Mobile Number not Registered</h2>
             <p>
-                This mobile number is not registered with Leichil TV. Please create an account from the mobile app with this mobile number.
+                This mobile number is not registered. Please download Leichil TV app on your phone and create an account with this mobile number.
+            </p>
+            <button type="button" onclick="window.location.reload()" class="purchase-continue" type="button">
+                Go Back
+            </button>
+        </div>
+    </div>
+}
+
+templ AlreadyPurchased() {
+    <div>
+        <div>
+            <h2 style="color: #E50B17;">This content is already PURCHASED!</h2>
+            <p>
+                This content is already purchased by the user with this mobile number.
             </p>
             <button type="button" onclick="window.location.reload()" class="purchase-continue" type="button">
                 Go Back
@@ -281,7 +295,7 @@ templ CustomerDetail(customer models.Customer, api_key, order_id, description st
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature: response.razorpay_signature 
                     };
-                    const url = "http://127.0.0.1:9999/public/orders/verify";
+                    const url = "https://leichiltv.com/public/orders/verify";
                     try {
                         const response = await fetch(url, {
                             method: "POST",
@@ -290,13 +304,13 @@ templ CustomerDetail(customer models.Customer, api_key, order_id, description st
                         });
                         if (!response.ok) {
                             console.log("Verification API Error");
-                            window.location.replace("http://127.0.0.1:9999/public/payment-error");
+                            window.location.replace("https://leichiltv.com/public/payment-error");
                         } else {
                             const result = await response.json();
-                            if (result?.success) window.location.replace("http://127.0.0.1:9999/public/payment-success");
+                            if (result?.success) window.location.replace("https://leichiltv.com/public/payment-success");
                             else {
                                 console.log(result);
-                                window.location.replace("http://127.0.0.1:9999/public/payment-error");
+                                window.location.replace("https://leichiltv.com/public/payment-error");
                             }
                         }
                     } catch (err) {

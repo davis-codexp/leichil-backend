@@ -6,3 +6,4 @@ tmp/
 leichil-transcoder
 leichil-api
 firebase.json
+*templ.go

@@ -20,7 +20,7 @@ var payment_verification_required_fields = []string{"RazorpayOrderID", "Razorpay
 var payment_update_required_fields = []string{"Status", "OrderID"}
 var order_required_fields = []string{"ContentID"}
 var subscription_order_required_fields = []string{"PlanID"}
-var qr_required_fields = []string{"DeviceID", "ContentID"}
+var qr_required_fields = []string{"ContentID"}
 
 func order_handler(router fiber.Router) {
 	router.Get("/", get_payment_orders)
@@ -139,8 +139,7 @@ func get_payment_qr(ctx *fiber.Ctx) error {
 		var url string = os.Getenv("PAYMENT_URL")
 		var token = ctx.Locals("customer_token").(models.CustomerToken)
 		var customer_id int = models.SanitizeData(token.CustomerID)
-		var device_id string = models.SanitizeData(body.DeviceID)
-		var query_params = fmt.Sprintf(`content_id=%d&customer_id=%d&device_id=%s&timestamp=%d&token=%s`, content_id, customer_id, device_id, timestamp, models.SanitizeData(token.Token))
+		var query_params = fmt.Sprintf(`content_id=%d&customer_id=%d&timestamp=%d&token=%s`, content_id, customer_id, timestamp, models.SanitizeData(token.Token))
 		encrypted_params, err := utils.Encrypt(query_params)
 		if err != nil {
 			return utils.GetMessageResponse("", "Unable to Get Payment Link", fiber.StatusInternalServerError, false, ctx)
@@ -233,8 +232,7 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 	var api_key = os.Getenv("RZP_KEY_ID")
 
 	if order_type == "subscription" {
-		return Render(
-			ctx,
+		return render_component(
 			templates.CheckoutSubscription(
 				order_id, api_key,
 				models.SanitizeData(customer.Name),
@@ -245,10 +243,12 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 				amount,
 				fmt.Sprintf("%d Month", models.SanitizeData(plan.DurationMonths)),
 			),
+			ctx,
+			false,
+			"Subscribe",
 		)
 	}
-	return Render(
-		ctx,
+	return render_component(
 		templates.PremiumCheckout(
 			order_id, api_key,
 			models.SanitizeData(customer.Name),
@@ -257,5 +257,8 @@ func HandlePaymentLink(ctx *fiber.Ctx) error {
 			models.SanitizeData(content.Thumbnail),
 			description, token_str, amount,
 		),
+		ctx,
+		false,
+		"Buy and Watch",
 	)
 }
